@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
-import 'package:make_my_ride/core/theme/app_theme.dart';
 import 'package:make_my_ride/core/constants/app_spacing.dart';
+import 'package:make_my_ride/features/auth/presentation/view/screens/phone_input_field.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/login/hero_session.dart';
 import 'package:make_my_ride/shared/widgets/app_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -72,7 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             child: Column(
               children: [
                 // ─── Top hero
-                _buildHero(context),
+                const LoginHeroSession(),
                 // ─── Form card
                 Expanded(
                   child: Padding(
@@ -96,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             const SizedBox(height: 32),
                             Form(
                               key: _formKey,
-                              child: _PhoneInputField(
+                              child: PhoneInputField(
                                 controller: _phoneController,
                                 countryCode: _countryCode,
                                 onCountryChanged: (v) =>
@@ -113,6 +113,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             ),
                             const Spacer(),
                             // ─── Terms
+
                             Center(
                               child: Text.rich(
                                 TextSpan(
@@ -143,168 +144,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHero(BuildContext context) {
-    return Container(
-      height: 260,
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(36),
-          bottomRight: Radius.circular(36),
-        ),
-      ),
-      child: Stack(
-        children: [
-          // ─── Decorative circles
-          Positioned(
-            top: -40,
-            right: -40,
-            child: Container(
-              width: 180,
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -20,
-            left: 40,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          // ─── Content
-          SafeArea(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(
-                      Icons.directions_car_rounded,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'BookMyRide',
-                    style: AppTextStyles.heading.copyWith(color: Colors.white),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Fast, safe & affordable rides',
-                    style: AppTextStyles.body.copyWith(
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PhoneInputField extends StatelessWidget {
-  final TextEditingController controller;
-  final String countryCode;
-  final ValueChanged<String> onCountryChanged;
-
-  const _PhoneInputField({
-    required this.controller,
-    required this.countryCode,
-    required this.onCountryChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Phone Number', style: AppTextStyles.bodyMedium),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: AppRadius.inputRadius,
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              // ─── Country code
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      right: BorderSide(color: AppColors.border),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('🇮🇳', style: TextStyle(fontSize: 18)),
-                      const SizedBox(width: 6),
-                      Text(countryCode, style: AppTextStyles.bodyMedium),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.expand_more_rounded,
-                          size: 18, color: AppColors.textSecondary),
-                    ],
-                  ),
-                ),
-              ),
-              // ─── Phone input
-              Expanded(
-                child: TextFormField(
-                  controller: controller,
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Enter phone number';
-                    if (v.length < 10) return 'Enter valid 10-digit number';
-                    return null;
-                  },
-                  style: AppTextStyles.body,
-                  decoration: InputDecoration(
-                    hintText: '98765 43210',
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: false,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14),
-                    hintStyle:
-                        AppTextStyles.body.copyWith(color: AppColors.textHint),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

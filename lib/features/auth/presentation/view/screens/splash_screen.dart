@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
-import 'package:make_my_ride/features/auth/presentation/view/widgets/bottom_circular_indicator.dart';
-import 'package:make_my_ride/features/auth/presentation/view/widgets/decorative_circles.dart';
-import 'package:make_my_ride/features/auth/presentation/view/widgets/splash_logo.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/bottom_circular_indicator.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/decorative_circles.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/splash_logo.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
