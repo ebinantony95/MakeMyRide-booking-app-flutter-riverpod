@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "601706852080",
+    "project_id": "makemyride-4418e",
+    "storage_bucket": "makemyride-4418e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601706852080:android:11522e75d6da0eb6621c35",
+        "android_client_info": {
+          "package_name": "com.bookmyride.book_my_ride"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiZ-NC4Xl-nFCcY3Mza2j3Ab_6DIVWj5M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601706852080:android:2fef721c776dd245621c35",
+        "android_client_info": {
+          "package_name": "com.bookmyride.make_my_ride"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiZ-NC4Xl-nFCcY3Mza2j3Ab_6DIVWj5M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
