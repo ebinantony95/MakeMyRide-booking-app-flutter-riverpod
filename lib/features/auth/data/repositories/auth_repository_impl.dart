@@ -26,4 +26,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> signOut() => _dataSource.signOut();
+
+  @override
+  Future<UserEntity> updateUserProfile({
+    required String name,
+    required String email,
+  }) {
+    return _dataSource.updateUserProfile(name: name, email: email);
+  }
 }

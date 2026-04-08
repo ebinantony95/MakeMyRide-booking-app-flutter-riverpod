@@ -53,8 +53,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
   @override
   void dispose() {
     _timer.cancel();
-    _otpController.dispose();
     _animController.dispose();
+    final otpController = _otpController;
+    Future.microtask(() => otpController.dispose());
     super.dispose();
   }
 
@@ -88,7 +89,12 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
     final success =
         await ref.read(authViewModelProvider.notifier).verifyOtp(_otpCode);
     if (success && mounted) {
-      context.go(AppRoutes.home);
+      final user = ref.read(authViewModelProvider).user;
+      if (user != null && user.isProfileComplete) {
+        context.go(AppRoutes.home);
+      } else {
+        context.go(AppRoutes.completeProfile);
+      }
     }
   }
 

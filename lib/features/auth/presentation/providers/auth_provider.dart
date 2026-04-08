@@ -7,6 +7,7 @@ import 'package:make_my_ride/features/auth/domain/usecases/get_current_user_usec
 import 'package:make_my_ride/features/auth/domain/usecases/send_otp_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:make_my_ride/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:make_my_ride/features/auth/presentation/viewmodel/auth_viewmodel.dart';
 
 // ─── Data Layer Providers ─────────────────────────────────────────────────────
@@ -37,6 +38,10 @@ final signOutUseCaseProvider = Provider<SignOutUseCase>(
   (ref) => SignOutUseCase(ref.watch(authRepositoryProvider)),
 );
 
+final updateProfileUseCaseProvider = Provider<UpdateProfileUseCase>(
+  (ref) => UpdateProfileUseCase(ref.watch(authRepositoryProvider)),
+);
+
 // ─── ViewModel Provider ───────────────────────────────────────────────────────
 
 final authViewModelProvider =
@@ -46,6 +51,7 @@ final authViewModelProvider =
     verifyOtpUseCase: ref.watch(verifyOtpUseCaseProvider),
     getCurrentUserUseCase: ref.watch(getCurrentUserUseCaseProvider),
     signOutUseCase: ref.watch(signOutUseCaseProvider),
+    updateProfileUseCase: ref.watch(updateProfileUseCaseProvider),
   ),
 );
 

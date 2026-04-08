@@ -44,7 +44,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   void dispose() {
     _animController.dispose();
-    _phoneController.dispose();
+    // Delay controller disposal to prevent trailing field animations from throwing errors after navigation
+    final controller = _phoneController;
+    Future.microtask(() => controller.dispose());
     super.dispose();
   }
 

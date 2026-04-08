@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
+import 'package:make_my_ride/features/auth/domain/entities/user_entity.dart';
 import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/bottom_circular_indicator.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/decorative_circles.dart';
@@ -54,7 +55,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;
 
-      final authUser = await ref.read(authCheckProvider.future);
+      UserEntity? authUser;
+      try {
+        authUser = await ref.read(authCheckProvider.future);
+      } catch (e) {
+        // Handle Firestore unavailable or network errors gracefully
+        debugPrint('Auth check error: $e');
+        authUser = null; // Default to unauthenticated state
+      }
 
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -65,7 +73,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
       if (mounted) {
         if (authUser != null) {
-          context.go(AppRoutes.home);
+          if (authUser.isProfileComplete) {
+            context.go(AppRoutes.home);
+          } else {
+            context.go(AppRoutes.completeProfile);
+          }
         } else {
           context.go(AppRoutes.login);
         }

@@ -12,6 +12,7 @@ class AppCard extends StatelessWidget {
   final Color? color;
   final List<BoxShadow>? boxShadow;
   final double? radius;
+  final BorderRadius? borderRadius;
 
   const AppCard({
     super.key,
@@ -21,6 +22,7 @@ class AppCard extends StatelessWidget {
     this.color,
     this.boxShadow,
     this.radius,
+    this.borderRadius,
   });
 
   @override
@@ -29,12 +31,12 @@ class AppCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(radius ?? AppRadius.md),
+        borderRadius: borderRadius ?? BorderRadius.circular(radius ?? AppRadius.md),
         child: Ink(
           padding: padding ?? const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: color ?? AppColors.background,
-            borderRadius: BorderRadius.circular(radius ?? AppRadius.md),
+            borderRadius: borderRadius ?? BorderRadius.circular(radius ?? AppRadius.md),
             border: Border.all(color: AppColors.border, width: 0.5),
             boxShadow: boxShadow ?? AppShadows.card,
           ),

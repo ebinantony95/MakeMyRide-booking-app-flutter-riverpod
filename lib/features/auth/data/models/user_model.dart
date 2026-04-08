@@ -12,6 +12,7 @@ class UserModel extends UserEntity {
     required super.createdAt,
   });
 
+  //from firestore to user model
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return UserModel(
@@ -25,6 +26,7 @@ class UserModel extends UserEntity {
     );
   }
 
+  //from firebase user to user model
   factory UserModel.fromFirebaseUser({
     required String uid,
     required String phoneNumber,
@@ -37,6 +39,7 @@ class UserModel extends UserEntity {
     );
   }
 
+  //from user model to firestore
   Map<String, dynamic> toFirestore() => {
         'phoneNumber': phoneNumber,
         'name': name,

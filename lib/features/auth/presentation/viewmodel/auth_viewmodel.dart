@@ -4,6 +4,7 @@ import 'package:make_my_ride/features/auth/domain/usecases/get_current_user_usec
 import 'package:make_my_ride/features/auth/domain/usecases/send_otp_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:make_my_ride/features/auth/domain/usecases/update_profile_usecase.dart';
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -51,16 +52,19 @@ class AuthViewModel extends StateNotifier<AuthState> {
   final VerifyOtpUseCase _verifyOtpUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final SignOutUseCase _signOutUseCase;
+  final UpdateProfileUseCase _updateProfileUseCase;
 
   AuthViewModel({
     required SendOtpUseCase sendOtpUseCase,
     required VerifyOtpUseCase verifyOtpUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required SignOutUseCase signOutUseCase,
+    required UpdateProfileUseCase updateProfileUseCase,
   })  : _sendOtpUseCase = sendOtpUseCase,
         _verifyOtpUseCase = verifyOtpUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
         _signOutUseCase = signOutUseCase,
+        _updateProfileUseCase = updateProfileUseCase,
         super(const AuthState());
 
   // ─── Check session (called from splash) ────────────────────────────────────
@@ -136,6 +140,26 @@ class AuthViewModel extends StateNotifier<AuthState> {
   Future<void> resendOtp(String phoneNumber) async {
     state = state.copyWith(otpSent: false, clearError: true);
     await sendOtp(phoneNumber);
+  }
+
+  // ─── Update Profile ────────────────────────────────────────────────────────
+
+  Future<bool> updateProfile({required String name, required String email}) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final updatedUser = await _updateProfileUseCase(name: name, email: email);
+      state = state.copyWith(
+        isLoading: false,
+        user: updatedUser,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
+      return false;
+    }
   }
 
   // ─── Sign Out ──────────────────────────────────────────────────────────────

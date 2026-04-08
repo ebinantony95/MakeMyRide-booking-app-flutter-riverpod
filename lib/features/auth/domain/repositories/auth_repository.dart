@@ -17,4 +17,10 @@ abstract class AuthRepository {
 
   /// Signs the user out.
   Future<void> signOut();
+
+  /// Updates the user profile with name and email, and marks profile as complete.
+  Future<UserEntity> updateUserProfile({
+    required String name,
+    required String email,
+  });
 }

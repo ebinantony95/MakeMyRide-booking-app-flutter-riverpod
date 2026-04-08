@@ -17,7 +17,7 @@ class AuthFirebaseDataSource {
 
   Future<String> sendOtp(String phoneNumber) async {
     final completer = Completer<String>();
-
+//send otp to the phone number
     await _auth.verifyPhoneNumber(
       phoneNumber: phoneNumber,
       timeout: const Duration(seconds: 60),
@@ -30,11 +30,13 @@ class AuthFirebaseDataSource {
           completer.completeError(_mapAuthException(e));
         }
       },
+      //otp sent to the phone number
       codeSent: (String verificationId, int? resendToken) {
         if (!completer.isCompleted) {
           completer.complete(verificationId);
         }
       },
+      //otp auto retrieval timeout
       codeAutoRetrievalTimeout: (String verificationId) {
         if (!completer.isCompleted) {
           completer.complete(verificationId);
@@ -62,6 +64,8 @@ class AuthFirebaseDataSource {
     // Upsert user document in Firestore
     final docRef = _firestore.collection('users').doc(firebaseUser.uid);
     final snapshot = await docRef.get();
+
+    //if user is not exists in firestore create new user
 
     if (!snapshot.exists) {
       final userModel = UserModel.fromFirebaseUser(
@@ -92,6 +96,31 @@ class AuthFirebaseDataSource {
 
   Future<void> signOut() => _auth.signOut();
 
+  // ─── Update Profile ────────────────────────────────────────────────────────
+  
+  Future<UserModel> updateUserProfile({
+    required String name,
+    required String email,
+  }) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) throw Exception('No user signed in');
+
+    final docRef = _firestore.collection('users').doc(firebaseUser.uid);
+    final snapshot = await docRef.get();
+    
+    if (!snapshot.exists) throw Exception('User not found in database');
+
+    UserModel currentUser = UserModel.fromFirestore(snapshot);
+    UserModel updatedUser = currentUser.copyWith(
+      name: name,
+      email: email,
+      isProfileComplete: true,
+    );
+
+    await docRef.update(updatedUser.toFirestore());
+    return updatedUser;
+  }
+
   // ─── Error mapping ─────────────────────────────────────────────────────────
 
   Exception _mapAuthException(FirebaseAuthException e) {
@@ -101,7 +130,10 @@ class AuthFirebaseDataSource {
       case 'too-many-requests':
         return Exception('Too many requests. Please wait before trying again.');
       case 'quota-exceeded':
-        return Exception('SMS quota exceeded. Try again later.');
+      case 'billing-not-enabled':
+      case 'admin-restricted-operation':
+        return Exception(
+            'Firebase Billing is not enabled. Please use a "Test Phone Number" configured in the Firebase Console to test login.');
       default:
         return Exception(e.message ?? 'Authentication failed. Try again.');
     }

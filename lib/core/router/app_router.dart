@@ -4,6 +4,9 @@ import 'app_routes.dart';
 import '../../features/auth/presentation/view/screens/splash_screen.dart';
 import '../../features/auth/presentation/view/screens/login_screen.dart';
 import '../../features/auth/presentation/view/screens/otp_verification_screen.dart';
+import '../../features/auth/presentation/view/screens/profile_completion_screen.dart';
+import '../../features/ride/presentation/view/screens/home_screen.dart';
+import '../../features/ride/presentation/view/screens/address_search_screen.dart';
 
 export 'app_routes.dart';
 
@@ -31,9 +34,19 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: AppRoutes.completeProfile,
+      name: 'completeProfile',
+      builder: (context, state) => const ProfileCompletionScreen(),
+    ),
+    GoRoute(
       path: AppRoutes.home,
       name: 'home',
-      builder: (context, state) => const _PlaceholderScreen(title: 'Home'),
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.addressSearch,
+      name: 'addressSearch',
+      builder: (context, state) => const AddressSearchScreen(),
     ),
     GoRoute(
       path: AppRoutes.rideRequest,
