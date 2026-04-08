@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'app_routes.dart';
 import '../../features/auth/presentation/view/screens/splash_screen.dart';
 import '../../features/auth/presentation/view/screens/login_screen.dart';
+import '../../features/auth/presentation/view/screens/otp_verification_screen.dart';
 
 export 'app_routes.dart';
 
@@ -24,7 +25,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.otpVerification,
       name: 'otp',
-      builder: (context, state) => const _PlaceholderScreen(title: 'OTP'),
+      builder: (context, state) {
+        final phone = state.uri.queryParameters['phone'] ?? '';
+        return OtpVerificationScreen(phoneNumber: phone);
+      },
     ),
     GoRoute(
       path: AppRoutes.home,

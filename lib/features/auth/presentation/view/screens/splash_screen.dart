@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
+import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/bottom_circular_indicator.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/decorative_circles.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/splash_logo.dart';
@@ -49,17 +50,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    // Check auth status
+    Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;
+
+      final authUser = await ref.read(authCheckProvider.future);
+
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ));
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go(AppRoutes.login);
-      });
+
+      if (mounted) {
+        if (authUser != null) {
+          context.go(AppRoutes.home);
+        } else {
+          context.go(AppRoutes.login);
+        }
+      }
     });
   }
 
