@@ -25,20 +25,21 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  print("🔥 Firebase Connected Successfully");
+  debugPrint('🔥 Firebase Connected Successfully');
   runApp(const ProviderScope(child: BookMyRideApp()));
 }
 
-class BookMyRideApp extends StatelessWidget {
+class BookMyRideApp extends ConsumerWidget {
   const BookMyRideApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       title: 'BookMyRide',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: appRouter,
+      routerConfig: router,
     );
   }
 }

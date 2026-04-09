@@ -16,6 +16,11 @@ class AuthState {
   final bool otpSent;
   final bool isAuthenticated;
 
+  /// True once the first Firebase auth check has completed.
+  /// The router will NOT enforce any guards until this is true,
+  /// preventing premature redirects to /login on cold start or refresh.
+  final bool isInitialized;
+
   const AuthState({
     this.isLoading = false,
     this.verificationId,
@@ -23,6 +28,7 @@ class AuthState {
     this.errorMessage,
     this.otpSent = false,
     this.isAuthenticated = false,
+    this.isInitialized = false,
   });
 
   AuthState copyWith({
@@ -32,6 +38,7 @@ class AuthState {
     String? errorMessage,
     bool? otpSent,
     bool? isAuthenticated,
+    bool? isInitialized,
     bool clearError = false,
   }) {
     return AuthState(
@@ -41,6 +48,7 @@ class AuthState {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       otpSent: otpSent ?? this.otpSent,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      isInitialized: isInitialized ?? this.isInitialized,
     );
   }
 }
@@ -68,8 +76,9 @@ class AuthViewModel extends StateNotifier<AuthState> {
         super(const AuthState());
 
   // ─── Check session (called from splash) ────────────────────────────────────
+  // Also sets isInitialized = true so the router lift its guard.
 
-  Future<bool> checkCurrentUser() async {
+  Future<UserEntity?> checkCurrentUser() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final user = await _getCurrentUserUseCase();
@@ -77,11 +86,16 @@ class AuthViewModel extends StateNotifier<AuthState> {
         isLoading: false,
         user: user,
         isAuthenticated: user != null,
+        isInitialized: true,
       );
-      return user != null;
+      return user;
     } catch (_) {
-      state = state.copyWith(isLoading: false, isAuthenticated: false);
-      return false;
+      state = state.copyWith(
+        isLoading: false,
+        isAuthenticated: false,
+        isInitialized: true,
+      );
+      return null;
     }
   }
 
@@ -124,6 +138,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
         isLoading: false,
         user: user,
         isAuthenticated: true,
+        isInitialized: true,
       );
       return true;
     } catch (e) {
@@ -166,7 +181,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   Future<void> signOut() async {
     await _signOutUseCase();
-    state = const AuthState(); // reset to initial
+    // Keep isInitialized = true so router shows login, not splash
+    state = const AuthState(isInitialized: true);
   }
 
   // ─── Helpers ───────────────────────────────────────────────────────────────

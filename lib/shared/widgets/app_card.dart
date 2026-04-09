@@ -273,7 +273,7 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         width: 36,
         height: 36,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.primary,
           shape: BoxShape.circle,
         ),
@@ -326,23 +326,23 @@ class RideCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return const AppCard(
       child: Row(
         children: [
-          const SkeletonLoader(width: 10, height: 56, radius: AppRadius.full),
-          const SizedBox(width: 14),
+          SkeletonLoader(width: 10, height: 56, radius: AppRadius.full),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonLoader(width: double.infinity, height: 14),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 SkeletonLoader(width: double.infinity, height: 14),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          const Column(
+          SizedBox(width: 12),
+          Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               SkeletonLoader(width: 60, height: 16),

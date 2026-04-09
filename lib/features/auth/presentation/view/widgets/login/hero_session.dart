@@ -27,7 +27,7 @@ class LoginHeroSession extends StatelessWidget {
               width: 180,
               height: 180,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: Colors.white.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -39,7 +39,7 @@ class LoginHeroSession extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: Colors.white.withOpacity(0.06),
                 shape: BoxShape.circle,
               ),
             ),
@@ -54,7 +54,7 @@ class LoginHeroSession extends StatelessWidget {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Icon(
@@ -72,7 +72,7 @@ class LoginHeroSession extends StatelessWidget {
                   Text(
                     'Fast, safe & affordable rides',
                     style: AppTextStyles.body.copyWith(
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: Colors.white.withOpacity(0.85),
                     ),
                   ),
                 ],

@@ -36,7 +36,7 @@ class ConfirmRideSheet extends StatelessWidget {
           const SizedBox(height: 24),
 
           // ─── Vehicle Selection
-          Row(
+          const Row(
             children: [
               _VehicleOption(
                 type: 'BookMyRide Go',

@@ -146,7 +146,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
           icon: Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.surfaceVariant,
               shape: BoxShape.circle,
             ),

@@ -88,97 +88,90 @@ class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScree
       body: GestureDetector(
         onTap: FocusScope.of(context).unfocus,
         child: SingleChildScrollView(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                // Reusing the nice hero graphic from Login (which shows illustrative graphics)
-                const LoginHeroSession(),
-                
-                Expanded(
-                  child: Padding(
-                    padding: AppSpacing.screenPadding.copyWith(top: 0),
-                    child: SlideTransition(
-                      position: _slideAnim,
-                      child: FadeTransition(
-                        opacity: _fadeAnim,
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 32),
-                              Text('Complete Profile ✨',
-                                  style: AppTextStyles.heading),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Just a few details to get you started on your journey.',
-                                style: AppTextStyles.body.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 32),
-                              
-                              // Name Field
-                              TextFormField(
-                                controller: _nameController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Full Name',
-                                  prefixIcon: Icon(Icons.person_outline_rounded),
-                                ),
-                                textInputAction: TextInputAction.next,
-                                textCapitalization: TextCapitalization.words,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter your name';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              
-                              const SizedBox(height: 16),
-                              
-                              // Email Field
-                              TextFormField(
-                                controller: _emailController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Email Address',
-                                  prefixIcon: Icon(Icons.email_outlined),
-                                ),
-                                keyboardType: TextInputType.emailAddress,
-                                textInputAction: TextInputAction.done,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter your email';
-                                  }
-                                  // Basic email validation
-                                  if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
-                                    return 'Please enter a valid email';
-                                  }
-                                  return null;
-                                },
-                                onFieldSubmitted: (_) => _onSubmit(),
-                              ),
-                              
-                              const SizedBox(height: 32),
-                              
-                              AppButton.primary(
-                                label: 'Continue',
-                                isLoading: isLoading,
-                                onPressed: isLoading ? null : _onSubmit,
-                                suffixIcon: const Icon(Icons.check_circle_outline_rounded),
-                              ),
-                              
-                              const Spacer(),
-                            ],
+          child: Column(
+            children: [
+              // Reusing the nice hero graphic from Login
+              const LoginHeroSession(),
+              
+              Padding(
+                padding: AppSpacing.screenPadding,
+                child: SlideTransition(
+                  position: _slideAnim,
+                  child: FadeTransition(
+                    opacity: _fadeAnim,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          Text('Complete Profile ✨',
+                              style: AppTextStyles.heading),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Just a few details to get you started on your journey.',
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 32),
+                          
+                          // Name Field
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Full Name',
+                              prefixIcon: Icon(Icons.person_outline_rounded),
+                            ),
+                            textInputAction: TextInputAction.next,
+                            textCapitalization: TextCapitalization.words,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your name';
+                              }
+                              return null;
+                            },
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // Email Field
+                          TextFormField(
+                            controller: _emailController,
+                            decoration: const InputDecoration(
+                              labelText: 'Email Address',
+                              prefixIcon: Icon(Icons.email_outlined),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                            onFieldSubmitted: (_) => _onSubmit(),
+                          ),
+                          
+                          const SizedBox(height: 40),
+                          
+                          AppButton.primary(
+                            label: 'Continue',
+                            isLoading: isLoading,
+                            onPressed: isLoading ? null : _onSubmit,
+                            suffixIcon: const Icon(Icons.check_circle_outline_rounded),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

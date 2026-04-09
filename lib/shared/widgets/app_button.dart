@@ -110,7 +110,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
   _ButtonStyle _resolveStyle() {
     switch (widget.variant) {
       case AppButtonVariant.primary:
-        return _ButtonStyle(
+        return const _ButtonStyle(
           background: AppColors.primary,
           foreground: AppColors.textOnPrimary,
           pressedBackground: AppColors.primaryDark,
@@ -118,23 +118,23 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
           border: null,
         );
       case AppButtonVariant.secondary:
-        return _ButtonStyle(
+        return const _ButtonStyle(
           background: AppColors.primaryLight,
           foreground: AppColors.primaryDark,
-          pressedBackground: const Color(0xFFCEF5D6),
+          pressedBackground: Color(0xFFCEF5D6),
           shadows: null,
           border: null,
         );
       case AppButtonVariant.outline:
-        return _ButtonStyle(
+        return const _ButtonStyle(
           background: Colors.transparent,
           foreground: AppColors.primary,
           pressedBackground: AppColors.primaryLight,
           shadows: null,
-          border: const BorderSide(color: AppColors.primary, width: 1.5),
+          border: BorderSide(color: AppColors.primary, width: 1.5),
         );
       case AppButtonVariant.ghost:
-        return _ButtonStyle(
+        return const _ButtonStyle(
           background: Colors.transparent,
           foreground: AppColors.primary,
           pressedBackground: AppColors.primaryLight,
@@ -142,10 +142,10 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
           border: null,
         );
       case AppButtonVariant.danger:
-        return _ButtonStyle(
+        return const _ButtonStyle(
           background: AppColors.error,
           foreground: Colors.white,
-          pressedBackground: const Color(0xFFD9363E),
+          pressedBackground: Color(0xFFD9363E),
           shadows: null,
           border: null,
         );

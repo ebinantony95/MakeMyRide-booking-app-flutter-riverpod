@@ -34,7 +34,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- TODO: Insert your Google Maps API Key here to see the map -->
+        <!-- 
+          IMPORTANT: Insert your Google Maps API Key here. 
+          Without a valid key, the app will CRASH when redirecting to the Home screen.
+          Get a key at: https://console.cloud.google.com/google/maps-apis/credentials
+        -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_API_KEY_HERE" />

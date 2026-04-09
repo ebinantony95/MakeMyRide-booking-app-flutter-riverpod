@@ -4,7 +4,7 @@ enum RideStatus {
   searching,
   accepted,
   arriving,
-  in_progress,
+  inProgress,
   completed,
   cancelled
 }
