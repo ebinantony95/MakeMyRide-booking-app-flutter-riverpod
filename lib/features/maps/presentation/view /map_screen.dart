@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:make_my_ride/core/theme/theme.dart';
 
 import '../providers/map_providers.dart';
+import 'widgets/search_bottom_sheet.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -16,12 +18,22 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   final TextEditingController controller = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   final MapController mapController = MapController();
   Timer? _debounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
+    _searchFocusNode.addListener(() {
+      if (_searchFocusNode.hasFocus) {
+        setState(() {
+          _isSearching = true;
+        });
+      }
+    });
+
     Future.microtask(() {
       ref.read(mapViewModelProvider.notifier).loadLocation();
     });
@@ -31,6 +43,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void dispose() {
     _debounce?.cancel();
     controller.dispose();
+    _searchFocusNode.dispose();
     mapController.dispose();
     super.dispose();
   }
@@ -41,6 +54,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       if (query.isNotEmpty) {
         ref.read(mapViewModelProvider.notifier).search(query);
       }
+      setState(() {});
+    });
+    setState(() {}); // to show the clear button interactively
+  }
+
+  void _closeSearch() {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isSearching = false;
     });
   }
 
@@ -59,11 +81,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          /// 1. Background Map
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
               initialCenter: LatLng(current.latitude, current.longitude),
               initialZoom: 15,
+              onTap: (_, __) {
+                if (_isSearching) {
+                  _closeSearch();
+                }
+              },
             ),
             children: [
               TileLayer(
@@ -77,12 +105,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 alignDirectionOnUpdate: AlignOnUpdate.never,
                 style: const LocationMarkerStyle(
                   marker: DefaultLocationMarker(
-                    child: Icon(
-                      Icons.navigation,
-                      color: Colors.white,
-                    ),
+                    color: AppColors.primary, // Teal color mapping screenshot
+                    child:
+                        Icon(Icons.navigation, color: Colors.white, size: 16),
                   ),
-                  markerSize: Size(40, 40),
+                  markerSize: Size(36, 36),
                   markerDirection: MarkerDirection.heading,
                 ),
               ),
@@ -92,110 +119,73 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     Marker(
                       point: LatLng(
                           state.selectedPlace!.lat, state.selectedPlace!.lon),
-                      child: const Icon(Icons.location_pin, color: Colors.indigo, size: 40),
+                      child: const Icon(Icons.location_pin,
+                          color: Colors.black87, size: 40),
                     ),
                 ],
               ),
             ],
           ),
 
-          /// 🔍 Search Bar
-          Positioned(
-            top: 60,
-            left: 16,
-            right: 16,
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      )
-                    ]
-                  ),
-                  child: TextField(
-                    controller: controller,
-                    onChanged: _onSearchChanged,
-                    decoration: InputDecoration(
-                      hintText: "Search destination",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      suffixIcon: controller.text.isNotEmpty ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.grey),
-                        onPressed: () {
-                          controller.clear();
-                          _onSearchChanged("");
-                        },
-                      ) : null,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                /// Results
-                if (state.searchResults.isNotEmpty && controller.text.isNotEmpty)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        )
-                      ]
-                    ),
-                    constraints: const BoxConstraints(maxHeight: 250),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: state.searchResults.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final place = state.searchResults[index];
-                        return ListTile(
-                          leading: const Icon(Icons.place, color: Colors.indigo),
-                          title: Text(place.name, style: const TextStyle(fontWeight: FontWeight.w500)),
-                          onTap: () {
-                            ref
-                                .read(mapViewModelProvider.notifier)
-                                .selectPlace(place);
-
-                            mapController.move(
-                              LatLng(place.lat, place.lon),
-                              15,
-                            );
-
-                            controller.text = place.name;
-                            ref.read(mapViewModelProvider.notifier).search(""); // clear results
-                            FocusScope.of(context).unfocus();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-              ],
+          /// 2. Floating Action Buttons (Hidden when searching)
+          if (!_isSearching) ...[
+            Positioned(
+              top: 60,
+              left: 16,
+              child: _buildFloatingIcon(Icons.person_outline),
             ),
+            Positioned(
+              top: 60,
+              right: 16,
+              child: _buildFloatingIcon(Icons.notifications_none),
+            ),
+            Positioned(
+              bottom: 270,
+              right: 16,
+              child: GestureDetector(
+                onTap: () {
+                  mapController.move(
+                    LatLng(current.latitude, current.longitude),
+                    15,
+                  );
+                },
+                child: _buildFloatingIcon(Icons.my_location,
+                    iconColor: const Color(0xFF1CAF9A)),
+              ),
+            ),
+          ],
+
+          /// 3. Animated Bottom "Where to?" Card -> Full Screen Search
+          SearchBottomSheet(
+            isSearching: _isSearching,
+            searchController: controller,
+            searchFocusNode: _searchFocusNode,
+            onSearchChanged: _onSearchChanged,
+            onCloseSearch: _closeSearch,
+            mapController: mapController,
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          mapController.move(
-            LatLng(current.latitude, current.longitude),
-            15,
-          );
-        },
-        child: const Icon(Icons.my_location),
+    );
+  }
+
+  Widget _buildFloatingIcon(IconData icon, {Color iconColor = Colors.black87}) {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Center(
+        child: Icon(icon, color: iconColor, size: 24),
       ),
     );
   }
