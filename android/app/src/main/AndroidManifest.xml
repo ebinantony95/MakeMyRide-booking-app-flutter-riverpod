@@ -6,6 +6,9 @@
         android:label="make_my_ride"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBiZ-NC4Xl-nFCcY3Mza2j3Ab_6DIVWj5M" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -39,9 +42,7 @@
           Without a valid key, the app will CRASH when redirecting to the Home screen.
           Get a key at: https://console.cloud.google.com/google/maps-apis/credentials
         -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY_HERE" />
+        
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
