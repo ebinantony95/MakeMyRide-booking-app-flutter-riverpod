@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
 import 'package:make_my_ride/core/constants/app_spacing.dart';
@@ -17,7 +15,8 @@ class ProfileCompletionScreen extends ConsumerStatefulWidget {
       _ProfileCompletionScreenState();
 }
 
-class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScreen>
+class _ProfileCompletionScreenState
+    extends ConsumerState<ProfileCompletionScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -56,13 +55,15 @@ class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScree
   Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await ref.read(authViewModelProvider.notifier).updateProfile(
-          name: _nameController.text.trim(),
-          email: _emailController.text.trim(),
-        );
+    final success =
+        await ref.read(authViewModelProvider.notifier).updateProfile(
+              name: _nameController.text.trim(),
+              email: _emailController.text.trim(),
+            );
 
-    if (success && mounted) {
-      context.go(AppRoutes.home);
+    if (!success && mounted) {
+      // The view_model sets the error state, listener handles showing the snackbar.
+      // We don't need manual redirection because GoRouter handles it via refreshListenable!
     }
   }
 
@@ -92,7 +93,7 @@ class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScree
             children: [
               // Reusing the nice hero graphic from Login
               const LoginHeroSession(),
-              
+
               Padding(
                 padding: AppSpacing.screenPadding,
                 child: SlideTransition(
@@ -115,7 +116,7 @@ class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScree
                             ),
                           ),
                           const SizedBox(height: 32),
-                          
+
                           // Name Field
                           TextFormField(
                             controller: _nameController,
@@ -132,9 +133,9 @@ class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScree
                               return null;
                             },
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
                           // Email Field
                           TextFormField(
                             controller: _emailController,
@@ -148,21 +149,24 @@ class _ProfileCompletionScreenState extends ConsumerState<ProfileCompletionScree
                               if (value == null || value.trim().isEmpty) {
                                 return 'Please enter your email';
                               }
-                              if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                              if (!RegExp(
+                                      r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                  .hasMatch(value)) {
                                 return 'Please enter a valid email';
                               }
                               return null;
                             },
                             onFieldSubmitted: (_) => _onSubmit(),
                           ),
-                          
+
                           const SizedBox(height: 40),
-                          
+
                           AppButton.primary(
                             label: 'Continue',
                             isLoading: isLoading,
                             onPressed: isLoading ? null : _onSubmit,
-                            suffixIcon: const Icon(Icons.check_circle_outline_rounded),
+                            suffixIcon:
+                                const Icon(Icons.check_circle_outline_rounded),
                           ),
                           const SizedBox(height: 40),
                         ],

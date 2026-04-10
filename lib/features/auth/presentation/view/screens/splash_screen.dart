@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:make_my_ride/core/router/app_router.dart';
-import 'package:make_my_ride/core/theme/app_colors.dart';
-import 'package:make_my_ride/features/auth/domain/entities/user_entity.dart';
 import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
+import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/bottom_circular_indicator.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/decorative_circles.dart';
 import 'package:make_my_ride/features/auth/presentation/view/widgets/splash/splash_logo.dart';
@@ -54,12 +52,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;
 
-      UserEntity? authUser;
       try {
-        authUser = await ref.read(authViewModelProvider.notifier).checkCurrentUser();
+        await ref.read(authViewModelProvider.notifier).checkCurrentUser();
       } catch (e) {
         debugPrint('Auth check error: $e');
-        authUser = null;
       }
 
       if (!mounted) return;
@@ -71,14 +67,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         systemNavigationBarIconBrightness: Brightness.dark,
       ));
 
-      // All routing decisions live in app_router.dart → navigateAfterSplash
-      // Using addPostFrameCallback is the idiomatic way to use BuildContext
-      // after an async gap without triggering use_build_context_synchronously.
-      final resolvedUser = authUser;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        navigateAfterSplash(context, resolvedUser);
-      });
+      // GoRouter handles the navigation automatically once isInitialized is true
     });
   }
 

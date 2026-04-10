@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart' as loc;
 
 class LocationService {
   /// Check if location services are enabled and permissions are granted.
@@ -10,7 +11,18 @@ class LocationService {
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return false;
+      try {
+        // Attempt to show the native Android "Turn on Location" dialog without leaving the app
+        final loc.Location location = loc.Location();
+        bool isTurnedOn = await location.requestService();
+        if (!isTurnedOn) {
+          return false;
+        }
+      } catch (e) {
+        // Fallback: Drop user into device settings if native prompt is unavailable (e.g. iOS)
+        await Geolocator.openLocationSettings();
+        return false;
+      }
     }
 
     permission = await Geolocator.checkPermission();
@@ -22,6 +34,8 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      // Prompt user to allow permissions in device app settings
+      await Geolocator.openAppSettings();
       return false;
     }
 

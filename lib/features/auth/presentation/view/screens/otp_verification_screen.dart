@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
 import 'package:make_my_ride/core/constants/app_spacing.dart';
@@ -88,13 +87,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
 
     final success =
         await ref.read(authViewModelProvider.notifier).verifyOtp(_otpCode);
-    if (success && mounted) {
-      final user = ref.read(authViewModelProvider).user;
-      if (user != null && user.isProfileComplete) {
-        context.go(AppRoutes.home);
-      } else {
-        context.go(AppRoutes.completeProfile);
-      }
+    if (!success && mounted) {
+      // The view_model already sets the error state, which the listener handles.
+      // We don't need manual redirection because GoRouter handles it via refreshListenable!
     }
   }
 
@@ -244,10 +239,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
                         ),
                         textStyle: AppTextStyles.headingSmall
                             .copyWith(color: AppColors.textPrimary),
-                        animationDuration:
-                            const Duration(milliseconds: 200),
-                        onChanged: (value) =>
-                            setState(() => _otpCode = value),
+                        animationDuration: const Duration(milliseconds: 200),
+                        onChanged: (value) => setState(() => _otpCode = value),
                         onCompleted: (value) {
                           setState(() => _otpCode = value);
                           _onVerify();
@@ -275,8 +268,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
                               child: Text.rich(
                                 TextSpan(
                                   text: "Didn't receive OTP? ",
-                                  style: AppTextStyles.body.copyWith(
-                                      color: AppColors.textSecondary),
+                                  style: AppTextStyles.body
+                                      .copyWith(color: AppColors.textSecondary),
                                   children: [
                                     TextSpan(
                                       text: 'Resend',
@@ -290,11 +283,12 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
                           : Text.rich(
                               TextSpan(
                                 text: 'Resend OTP in ',
-                                style: AppTextStyles.body.copyWith(
-                                    color: AppColors.textSecondary),
+                                style: AppTextStyles.body
+                                    .copyWith(color: AppColors.textSecondary),
                                 children: [
                                   TextSpan(
-                                    text: '0:${_resendSeconds.toString().padLeft(2, '0')}',
+                                    text:
+                                        '0:${_resendSeconds.toString().padLeft(2, '0')}',
                                     style: AppTextStyles.bodyMedium
                                         .copyWith(color: AppColors.primary),
                                   ),

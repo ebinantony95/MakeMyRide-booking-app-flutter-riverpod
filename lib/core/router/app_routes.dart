@@ -5,15 +5,5 @@ abstract final class AppRoutes {
   static const String otpVerification = '/otp';
   static const String completeProfile = '/complete-profile';
   static const String home = '/home';
-  static const String rideRequest = '/ride-request';
-  static const String waiting = '/waiting';
-  static const String driverAssigned = '/driver-assigned';
-  static const String tracking = '/tracking';
-  static const String rideHistory = '/ride-history';
-  static const String profile = '/profile';
   static const String addressSearch = '/address-search';
-
-  // Driver routes
-  static const String driverHome = '/driver/home';
-  static const String driverRideDetail = '/driver/ride-detail';
 }

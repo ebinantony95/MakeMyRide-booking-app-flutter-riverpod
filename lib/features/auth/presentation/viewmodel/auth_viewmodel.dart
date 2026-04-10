@@ -123,8 +123,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
   Future<bool> verifyOtp(String smsCode) async {
     final verificationId = state.verificationId;
     if (verificationId == null) {
-      state = state.copyWith(
-          errorMessage: 'Session expired. Please resend OTP.');
+      state =
+          state.copyWith(errorMessage: 'Session expired. Please resend OTP.');
       return false;
     }
 
@@ -159,7 +159,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   // ─── Update Profile ────────────────────────────────────────────────────────
 
-  Future<bool> updateProfile({required String name, required String email}) async {
+  Future<bool> updateProfile(
+      {required String name, required String email}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final updatedUser = await _updateProfileUseCase(name: name, email: email);
