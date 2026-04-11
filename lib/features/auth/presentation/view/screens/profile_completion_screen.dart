@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
 import 'package:make_my_ride/core/constants/app_spacing.dart';
@@ -43,12 +44,8 @@ class _ProfileCompletionScreenState
   @override
   void dispose() {
     _animController.dispose();
-    final nameCtrl = _nameController;
-    final emailCtrl = _emailController;
-    Future.microtask(() {
-      nameCtrl.dispose();
-      emailCtrl.dispose();
-    });
+    _nameController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 

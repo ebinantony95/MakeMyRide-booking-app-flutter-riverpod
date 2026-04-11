@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:make_my_ride/core/theme/theme.dart';
+import 'package:make_my_ride/features/maps/presentation/view /widgets/book_your_ride_button.dart';
 import '../../providers/map_providers.dart';
 
 class SearchBottomSheet extends ConsumerWidget {
@@ -118,7 +118,7 @@ class SearchBottomSheet extends ConsumerWidget {
                   ? _buildSearchResults(state, ref)
                   : Column(
                       children: [
-                        _bookMyYourButton(state.selectedPlace != null),
+                        BookYourRideButton(),
                         const SizedBox(height: 20), // SizedBox below the row
                       ],
                     ),
@@ -129,29 +129,9 @@ class SearchBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _bookMyYourButton(bool isEnabled) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isEnabled ? () {} : null,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.grey[300],
-          disabledForegroundColor: Colors.grey[500],
-        ),
-        child: const Text(
-          "Make Your Ride",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
+  // book my ride button
 
+// search results or error widgets.
   Widget _buildSearchResults(dynamic state, WidgetRef ref) {
     if (searchController.text.isEmpty) {
       return const SizedBox();

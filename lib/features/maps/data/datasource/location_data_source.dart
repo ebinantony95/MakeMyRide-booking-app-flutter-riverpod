@@ -13,7 +13,9 @@ class LocationDatasource {
       permission = await Geolocator.requestPermission();
     }
 
-    final position = await Geolocator.getCurrentPosition();
+    final position = await Geolocator.getCurrentPosition(
+      timeLimit: const Duration(seconds: 10),
+    );
 
     return LocationEntity(
       latitude: position.latitude,

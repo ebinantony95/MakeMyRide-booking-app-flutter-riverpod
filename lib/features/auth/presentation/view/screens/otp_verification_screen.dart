@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
@@ -53,8 +54,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
   void dispose() {
     _timer.cancel();
     _animController.dispose();
-    final otpController = _otpController;
-    Future.microtask(() => otpController.dispose());
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -87,9 +87,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
 
     final success =
         await ref.read(authViewModelProvider.notifier).verifyOtp(_otpCode);
-    if (!success && mounted) {
-      // The view_model already sets the error state, which the listener handles.
-      // We don't need manual redirection because GoRouter handles it via refreshListenable!
+
+    if (!mounted) return; // ✅ IMPORTANT
+
+    if (!success) {
+      // handled by listener
     }
   }
 

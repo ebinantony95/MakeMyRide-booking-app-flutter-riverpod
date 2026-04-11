@@ -13,6 +13,7 @@ import '../../features/auth/presentation/view/screens/splash_screen.dart';
 import '../../features/auth/presentation/view/screens/login_screen.dart';
 import '../../features/auth/presentation/view/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/view/screens/profile_completion_screen.dart';
+import '../../features/ride/presentation/view/ride_summary_screen.dart';
 
 export 'app_routes.dart';
 
@@ -54,7 +55,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     // ─── Global redirect logic ─────────────────────────────────────────────
     redirect: (BuildContext context, GoRouterState state) {
       return AuthGate.redirect(
-        currentPath: state.matchedLocation,
         authState: authNotifier.authState,
         state: state,
       );
@@ -93,11 +93,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'home',
         builder: (context, state) => const HomeScreen(),
       ),
-      // GoRoute(
-      //   path: AppRoutes.addressSearch,
-      //   name: 'addressSearch',
-      //   builder: (context, state) => const AddressSearchScreen(),
-      // )
+      GoRoute(
+        path: AppRoutes.rideSummary,
+        name: 'rideSummary',
+        builder: (context, state) {
+          final extras = state.extra as Map<String, dynamic>? ?? {};
+          return RideSummaryScreen(
+            pickupLat: extras['pickupLat'] as double? ?? 0.0,
+            pickupLng: extras['pickupLng'] as double? ?? 0.0,
+            dropLat: extras['dropLat'] as double? ?? 0.0,
+            dropLng: extras['dropLng'] as double? ?? 0.0,
+            userId: extras['userId'] as String? ?? '',
+          );
+        },
+      )
     ],
 
     // ─── Error page ────────────────────────────────────────────────────────

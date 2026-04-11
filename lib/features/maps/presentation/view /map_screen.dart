@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:make_my_ride/core/theme/theme.dart';
+import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
 
 import '../providers/map_providers.dart';
 import 'widgets/search_bottom_sheet.dart';
@@ -137,7 +138,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             Positioned(
               top: 60,
               right: 16,
-              child: _buildFloatingIcon(Icons.notifications_none),
+              child: GestureDetector(
+                  onTap: () {
+                    //logout
+                    ref.read(authViewModelProvider.notifier).signOut();
+                  },
+                  child: _buildFloatingIcon(Icons.notifications_none)),
             ),
             Positioned(
               bottom: 270,

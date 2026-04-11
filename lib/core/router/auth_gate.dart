@@ -1,66 +1,62 @@
 import 'package:go_router/go_router.dart';
-
-import '../../features/auth/presentation/viewmodel/auth_viewmodel.dart';
-import 'app_routes.dart';
+import 'package:make_my_ride/core/router/app_routes.dart';
+import 'package:make_my_ride/features/auth/presentation/viewmodel/auth_viewmodel.dart';
 
 class AuthGate {
   static String? redirect({
-    required String currentPath,
     required AuthState authState,
     required GoRouterState state,
   }) {
-    // 1. If auth state is not yet initialized -> stay on Splash
-    if (!authState.isInitialized) {
-      return currentPath == AppRoutes.splash ? null : AppRoutes.splash;
-    }
+    final path = state.uri.path;
 
+    final isInitialized = authState.isInitialized;
     final isAuthenticated = authState.isAuthenticated;
     final user = authState.user;
+
+    /// 🟡 1. Wait for app init
+    if (!isInitialized) {
+      return path == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+
+    /// 🟡 2. Wait for user data after login
+    if (isAuthenticated && user == null) {
+      return null; // ⛔ don't redirect yet
+    }
+
     final isProfileComplete = user?.isProfileComplete ?? false;
 
-    // 2. If current path is Splash
-    if (currentPath == AppRoutes.splash) {
-      if (!isAuthenticated) return AppRoutes.login;
-      if (!isProfileComplete) return AppRoutes.completeProfile;
-      return AppRoutes.home;
-    }
-
-    // 3. Protect OTP route
-    if (currentPath == AppRoutes.otpVerification) {
-      final phoneInQuery = state.uri.queryParameters['phone'];
-      final extraOptions = state.extra;
-      final hasPhone = (phoneInQuery != null && phoneInQuery.isNotEmpty) || extraOptions != null;
-      if (!hasPhone) {
-        return AppRoutes.login;
-      }
-    }
-
+    /// 🌐 Public routes
     const publicRoutes = {
+      AppRoutes.splash,
       AppRoutes.login,
       AppRoutes.otpVerification,
-      AppRoutes.splash,
     };
-    final isPublic = publicRoutes.contains(currentPath);
 
-    // 4. If user is authenticated AND profile complete
-    if (isAuthenticated && isProfileComplete) {
-      if (isPublic || currentPath == AppRoutes.completeProfile) {
-        return AppRoutes.home; // prevent access to auth flow routes
-      }
-    }
+    final isPublic = publicRoutes.contains(path);
 
-    // 5. If authenticated BUT profile incomplete
-    if (isAuthenticated && !isProfileComplete) {
-      if (currentPath != AppRoutes.completeProfile) {
-        return AppRoutes.completeProfile; // force redirect to profile completion
-      }
-    }
-
-    // 6. If NOT authenticated and trying to access private routes
+    /// 🔐 3. Not logged in
     if (!isAuthenticated && !isPublic) {
-      return AppRoutes.login; // redirect to login
+      return AppRoutes.login;
     }
 
-    return null;
+    /// 🧾 4. Logged in but profile NOT complete
+    if (isAuthenticated && !isProfileComplete) {
+      if (path != AppRoutes.completeProfile) {
+        return AppRoutes.completeProfile;
+      }
+      return null;
+    }
+
+    /// 🚫 5. Logged in + profile complete → block auth screens
+    if (isAuthenticated && isProfileComplete) {
+      if (path == AppRoutes.login ||
+          path == AppRoutes.otpVerification ||
+          path == AppRoutes.splash ||
+          path == AppRoutes.completeProfile) {
+        return AppRoutes.home;
+      }
+    }
+
+    return null; // ✅ allow navigation
   }
 }
