@@ -23,4 +23,12 @@ class MapViewModel extends StateNotifier<MapState> {
   void selectPlace(place) {
     state = state.copyWith(selectedPlace: place);
   }
+
+  void clearSelection() {
+    state = MapState(
+      currentLocation: state.currentLocation,
+      searchResults: state.searchResults,
+      selectedPlace: null,
+    );
+  }
 }

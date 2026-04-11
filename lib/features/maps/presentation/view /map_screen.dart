@@ -105,7 +105,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 alignDirectionOnUpdate: AlignOnUpdate.never,
                 style: const LocationMarkerStyle(
                   marker: DefaultLocationMarker(
-                    color: AppColors.primary, // Teal color mapping screenshot
+                    color: AppColors.primary,
                     child:
                         Icon(Icons.navigation, color: Colors.white, size: 16),
                   ),
@@ -150,7 +150,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   );
                 },
                 child: _buildFloatingIcon(Icons.my_location,
-                    iconColor: const Color(0xFF1CAF9A)),
+                    iconColor: AppColors.primary),
               ),
             ),
           ],
@@ -178,7 +178,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )

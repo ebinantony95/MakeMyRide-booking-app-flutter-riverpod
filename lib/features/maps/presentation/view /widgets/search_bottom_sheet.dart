@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:make_my_ride/core/theme/theme.dart';
 import '../../providers/map_providers.dart';
 
 class SearchBottomSheet extends ConsumerWidget {
@@ -29,13 +30,13 @@ class SearchBottomSheet extends ConsumerWidget {
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      top: isSearching ? 0 : MediaQuery.of(context).size.height - 230,
+      top: isSearching ? 0 : MediaQuery.of(context).size.height - 250,
       left: 0,
       right: 0,
       bottom: 0,
       child: Container(
         padding:
-            EdgeInsets.only(top: isSearching ? 60 : 30, left: 24, right: 24),
+            EdgeInsets.only(top: isSearching ? 60 : 20, left: 24, right: 24),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: isSearching
@@ -43,7 +44,7 @@ class SearchBottomSheet extends ConsumerWidget {
               : const BorderRadius.vertical(top: Radius.circular(30)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, -5),
             )
@@ -96,6 +97,9 @@ class SearchBottomSheet extends ConsumerWidget {
                                 onPressed: () {
                                   searchController.clear();
                                   onSearchChanged("");
+                                  ref
+                                      .read(mapViewModelProvider.notifier)
+                                      .clearSelection();
                                 },
                               )
                             : null,
@@ -114,7 +118,7 @@ class SearchBottomSheet extends ConsumerWidget {
                   ? _buildSearchResults(state, ref)
                   : Column(
                       children: [
-                        _buildQuickActions(),
+                        _bookMyYourButton(state.selectedPlace != null),
                         const SizedBox(height: 20), // SizedBox below the row
                       ],
                     ),
@@ -125,51 +129,26 @@ class SearchBottomSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.home_outlined,
-                    color: Color(0xFF1CAF9A), size: 20),
-                const SizedBox(width: 8),
-                const Text("Home",
-                    style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-              ],
-            ),
+  Widget _bookMyYourButton(bool isEnabled) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: isEnabled ? () {} : null,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey[300],
+          disabledForegroundColor: Colors.grey[500],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.work_outline,
-                    color: Color(0xFF1CAF9A), size: 20),
-                const SizedBox(width: 8),
-                const Text("Work",
-                    style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-              ],
-            ),
-          ),
+        child: const Text(
+          "Make Your Ride",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-      ],
+      ),
     );
   }
 
