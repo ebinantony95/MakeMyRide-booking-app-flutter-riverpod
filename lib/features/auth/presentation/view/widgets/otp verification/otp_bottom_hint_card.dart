@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
 
-class OtpBottomHint extends StatelessWidget {
-  const OtpBottomHint({super.key});
+class OtpBottomHintCard extends StatelessWidget {
+  const OtpBottomHintCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,8 @@ class OtpBottomHint extends StatelessWidget {
           Expanded(
             child: Text(
               'The OTP is valid for 10 minutes. Do not share it with anyone.',
-              style: AppTextStyles.caption.copyWith(color: AppColors.primaryDark),
+              style:
+                  AppTextStyles.caption.copyWith(color: AppColors.primaryDark),
             ),
           ),
         ],

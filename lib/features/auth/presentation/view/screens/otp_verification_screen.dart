@@ -2,10 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/otp%20verification/otp_bottom_hint_card.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/otp%20verification/otp_head_title.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/otp%20verification/otp_pin_filed.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/otp%20verification/otp_resend_widget.dart';
+import 'package:make_my_ride/features/auth/presentation/view/widgets/otp%20verification/otpscreen_topicon.dart';
 
-import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
-import 'package:make_my_ride/core/theme/app_text_styles.dart';
 import 'package:make_my_ride/core/constants/app_spacing.dart';
 import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
 import 'package:make_my_ride/shared/widgets/app_button.dart';
@@ -114,12 +117,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       );
 
-  String get _maskedPhone {
-    final p = widget.phoneNumber;
-    if (p.length < 4) return p;
-    return '${p.substring(0, p.length - 4)}****';
-  }
-
   @override
   Widget build(BuildContext context) {
     // Listen for errors & success
@@ -170,89 +167,25 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
                   children: [
                     const SizedBox(height: 8),
 
-                    // ─── Icon badge
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.lock_outline_rounded,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
+                    // ─── Icon badge (top icon)
+                    OtpscreenTopicon(),
 
                     const SizedBox(height: 28),
 
                     // ─── Title
-                    Text('Verify your\nnumber 🔐',
-                        style: AppTextStyles.displayMedium),
-                    const SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.body
-                            .copyWith(color: AppColors.textSecondary),
-                        children: [
-                          const TextSpan(text: 'OTP sent to '),
-                          TextSpan(
-                            text: _maskedPhone,
-                            style: AppTextStyles.bodyMedium
-                                .copyWith(color: AppColors.textPrimary),
-                          ),
-                        ],
-                      ),
-                    ),
+                    OtpHeadTitle(),
 
                     const SizedBox(height: 44),
 
                     // ─── OTP Pin Field
-                    Form(
-                      key: _formKey,
-                      child: PinCodeTextField(
-                        appContext: context,
-                        length: 6,
-                        controller: _otpController,
-                        autoDisposeControllers: false,
-                        animationType: AnimationType.scale,
-                        keyboardType: TextInputType.number,
-                        autoFocus: true,
-                        enableActiveFill: true,
-                        cursorColor: AppColors.primary,
-                        pinTheme: PinTheme(
-                          shape: PinCodeFieldShape.box,
-                          borderRadius: BorderRadius.circular(14),
-                          fieldWidth: 50,
-                          fieldHeight: 56,
-                          activeFillColor: AppColors.primaryLight,
-                          inactiveFillColor: AppColors.surfaceVariant,
-                          selectedFillColor: AppColors.primaryLight,
-                          activeColor: AppColors.primary,
-                          inactiveColor: AppColors.border,
-                          selectedColor: AppColors.primary,
-                          borderWidth: 1.5,
-                        ),
-                        textStyle: AppTextStyles.headingSmall
-                            .copyWith(color: AppColors.textPrimary),
-                        animationDuration: const Duration(milliseconds: 200),
-                        onChanged: (value) => setState(() => _otpCode = value),
-                        onCompleted: (value) {
-                          setState(() => _otpCode = value);
-                          _onVerify();
-                        },
-                      ),
-                    ),
-
                     const SizedBox(height: 32),
+
+                    OtpPinField(
+                      otpCode: _otpCode,
+                      onChanged: (value) => setState(() => _otpCode = value),
+                      onCompleted: _onVerify,
+                      formKey: _formKey,
+                    ),
 
                     // ─── Verify button
                     AppButton.primary(
@@ -264,75 +197,16 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
 
                     const SizedBox(height: 28),
 
-                    // ─── Resend row
-                    Center(
-                      child: _canResend
-                          ? GestureDetector(
-                              onTap: _onResend,
-                              child: Text.rich(
-                                TextSpan(
-                                  text: "Didn't receive OTP? ",
-                                  style: AppTextStyles.body
-                                      .copyWith(color: AppColors.textSecondary),
-                                  children: [
-                                    TextSpan(
-                                      text: 'Resend',
-                                      style: AppTextStyles.bodyMedium
-                                          .copyWith(color: AppColors.primary),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : Text.rich(
-                              TextSpan(
-                                text: 'Resend OTP in ',
-                                style: AppTextStyles.body
-                                    .copyWith(color: AppColors.textSecondary),
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        '0:${_resendSeconds.toString().padLeft(2, '0')}',
-                                    style: AppTextStyles.bodyMedium
-                                        .copyWith(color: AppColors.primary),
-                                  ),
-                                ],
-                              ),
-                            ),
+                    OtpResendWidget(
+                      canResend: _canResend,
+                      resendSeconds: _resendSeconds,
+                      onResend: _onResend,
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
 
                     // ─── Bottom hint card
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'The OTP is valid for 10 minutes. Do not share it with anyone.',
-                              style: AppTextStyles.caption
-                                  .copyWith(color: AppColors.primaryDark),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    OtpBottomHintCard()
                   ],
                 ),
               ),
