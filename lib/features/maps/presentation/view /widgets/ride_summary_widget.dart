@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
+import 'package:make_my_ride/features/maps/presentation/view%20/widgets/detail_row.dart';
 import 'package:make_my_ride/features/ride/presentation/providers/ride_provider.dart';
 import 'package:make_my_ride/features/ride/presentation/view/vehcle_selector.dart';
 import 'package:make_my_ride/features/maps/presentation/providers/map_providers.dart';
@@ -153,24 +154,24 @@ class RideSummaryWidget extends ConsumerWidget {
                             ],
                           ),
                           const SizedBox(height: 18),
-                          _DetailRow(
+                          DetailRow(
                             label: 'Vehicle',
                             value: currentRide!.vehicleType.name.toUpperCase(),
                           ),
                           const SizedBox(height: 10),
-                          _DetailRow(
+                          DetailRow(
                             label: 'Estimated Amount',
                             value: '₹${currentRide.price.toStringAsFixed(0)}',
                             emphasize: true,
                           ),
                           const SizedBox(height: 10),
-                          _DetailRow(
+                          DetailRow(
                             label: 'Distance',
                             value:
                                 '${currentRide.distanceKm.toStringAsFixed(1)} km',
                           ),
                           const SizedBox(height: 10),
-                          _DetailRow(
+                          DetailRow(
                             label: 'Status',
                             value: currentRide.status.toUpperCase(),
                             valueColor: isAcceptedRide
@@ -268,44 +269,6 @@ class RideSummaryWidget extends ConsumerWidget {
                 ],
               ),
             ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.emphasize = false,
-    this.valueColor,
-  });
-
-  final String label;
-  final String value;
-  final bool emphasize;
-  final Color? valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade700,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: emphasize ? 22 : 15,
-            fontWeight: emphasize ? FontWeight.bold : FontWeight.w600,
-            color: valueColor ?? Colors.black87,
-          ),
-        ),
-      ],
     );
   }
 }
