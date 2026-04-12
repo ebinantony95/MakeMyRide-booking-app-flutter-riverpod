@@ -6,6 +6,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:make_my_ride/core/theme/theme.dart';
 import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
+import 'package:make_my_ride/features/ride/presentation/providers/ride_provider.dart';
+import 'package:make_my_ride/features/ride/presentation/providers/user_id_provider.dart';
 
 import '../providers/map_providers.dart';
 import 'widgets/search_bottom_sheet.dart';
@@ -37,6 +39,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     Future.microtask(() {
       ref.read(mapViewModelProvider.notifier).loadLocation();
+      final userId = ref.read(userIdProvider);
+      ref.read(rideViewModelProvider.notifier).syncActiveRide(userId);
     });
   }
 
@@ -61,6 +65,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _closeSearch() {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isSearching = false;
+    });
+  }
+
+  void _resetBookingFlow() {
+    controller.clear();
+    ref.read(mapViewModelProvider.notifier).clearSelection();
     FocusScope.of(context).unfocus();
     setState(() {
       _isSearching = false;
@@ -168,6 +181,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             searchFocusNode: _searchFocusNode,
             onSearchChanged: _onSearchChanged,
             onCloseSearch: _closeSearch,
+            onResetBookingFlow: _resetBookingFlow,
             mapController: mapController,
           ),
         ],

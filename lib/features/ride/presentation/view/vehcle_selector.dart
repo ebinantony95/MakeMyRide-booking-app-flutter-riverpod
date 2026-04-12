@@ -8,23 +8,96 @@ class VehicleSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedVehicle =
+        ref.watch(rideViewModelProvider.select((s) => s.selectedVehicle));
+
     return Row(
       children: [
-        Expanded(child: _btn(ref, "Bike", VehicleType.bike)),
-        const SizedBox(width: 10),
-        Expanded(child: _btn(ref, "Auto", VehicleType.auto)),
-        const SizedBox(width: 10),
-        Expanded(child: _btn(ref, "Car", VehicleType.car)),
+        Expanded(
+          child: _VehicleCard(
+            ref: ref,
+            label: "Bike",
+            type: VehicleType.bike,
+            icon: Icons.pedal_bike,
+            isSelected: selectedVehicle == VehicleType.bike,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _VehicleCard(
+            ref: ref,
+            label: "Auto",
+            type: VehicleType.auto,
+            icon: Icons.electric_rickshaw,
+            isSelected: selectedVehicle == VehicleType.auto,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _VehicleCard(
+            ref: ref,
+            label: "Car",
+            type: VehicleType.car,
+            icon: Icons.directions_car,
+            isSelected: selectedVehicle == VehicleType.car,
+          ),
+        ),
       ],
     );
   }
+}
 
-  Widget _btn(WidgetRef ref, String label, VehicleType type) {
-    return ElevatedButton(
-      onPressed: () {
+class _VehicleCard extends StatelessWidget {
+  final WidgetRef ref;
+  final String label;
+  final VehicleType type;
+  final IconData icon;
+  final bool isSelected;
+
+  const _VehicleCard({
+    required this.ref,
+    required this.label,
+    required this.type,
+    required this.icon,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
         ref.read(rideViewModelProvider.notifier).selectVehicle(type);
       },
-      child: Text(label),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.black : Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.black87,
+              size: 28,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

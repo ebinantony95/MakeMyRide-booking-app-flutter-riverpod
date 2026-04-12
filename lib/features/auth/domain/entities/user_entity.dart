@@ -5,6 +5,9 @@ class UserEntity extends Equatable {
   final String phoneNumber;
   final String? name;
   final String? email;
+  final String? role;
+  final String? driverVehicleType;
+  final String? driverVehicleNumber;
   final String? photoUrl;
   final bool isProfileComplete;
   final DateTime createdAt;
@@ -14,6 +17,9 @@ class UserEntity extends Equatable {
     required this.phoneNumber,
     this.name,
     this.email,
+    this.role,
+    this.driverVehicleType,
+    this.driverVehicleNumber,
     this.photoUrl,
     required this.isProfileComplete,
     required this.createdAt,
@@ -25,6 +31,9 @@ class UserEntity extends Equatable {
         phoneNumber,
         name,
         email,
+        role,
+        driverVehicleType,
+        driverVehicleNumber,
         photoUrl,
         isProfileComplete,
         createdAt,

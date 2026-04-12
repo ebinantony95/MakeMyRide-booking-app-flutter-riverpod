@@ -23,4 +23,13 @@ abstract class AuthRepository {
     required String name,
     required String email,
   });
+
+  /// Updates the user role for future role-based navigation.
+  Future<UserEntity> updateUserRole(String role);
+
+  /// Updates driver-specific setup fields after selecting the driver role.
+  Future<UserEntity> updateDriverDetails({
+    required String vehicleType,
+    required String vehicleNumber,
+  });
 }

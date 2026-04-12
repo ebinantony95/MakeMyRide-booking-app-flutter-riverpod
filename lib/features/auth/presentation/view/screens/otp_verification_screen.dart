@@ -103,6 +103,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
     await ref
         .read(authViewModelProvider.notifier)
         .resendOtp(widget.phoneNumber);
+    if (!mounted) return;
     _startResendTimer();
   }
 
@@ -221,6 +222,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen>
                         appContext: context,
                         length: 6,
                         controller: _otpController,
+                        autoDisposeControllers: false,
                         animationType: AnimationType.scale,
                         keyboardType: TextInputType.number,
                         autoFocus: true,

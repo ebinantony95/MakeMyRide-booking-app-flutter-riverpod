@@ -5,11 +5,13 @@ class MapState {
   final LocationEntity? currentLocation;
   final List<PlaceEntity> searchResults;
   final PlaceEntity? selectedPlace;
+  final bool isSummaryMode;
 
   MapState({
     this.currentLocation,
     this.searchResults = const [],
     this.selectedPlace,
+    this.isSummaryMode = false,
   });
 
   factory MapState.initial() => MapState();
@@ -18,11 +20,13 @@ class MapState {
     LocationEntity? currentLocation,
     List<PlaceEntity>? searchResults,
     PlaceEntity? selectedPlace,
+    bool? isSummaryMode,
   }) {
     return MapState(
       currentLocation: currentLocation ?? this.currentLocation,
       searchResults: searchResults ?? this.searchResults,
       selectedPlace: selectedPlace ?? this.selectedPlace,
+      isSummaryMode: isSummaryMode ?? this.isSummaryMode,
     );
   }
 }

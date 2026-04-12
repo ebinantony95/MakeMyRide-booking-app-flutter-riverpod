@@ -1,4 +1,5 @@
 import 'package:make_my_ride/features/home/home_page.dart';
+import 'package:make_my_ride/features/driver/driver_home.dart';
 
 import 'app_routes.dart';
 import 'auth_gate.dart';
@@ -13,7 +14,8 @@ import '../../features/auth/presentation/view/screens/splash_screen.dart';
 import '../../features/auth/presentation/view/screens/login_screen.dart';
 import '../../features/auth/presentation/view/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/view/screens/profile_completion_screen.dart';
-import '../../features/ride/presentation/view/ride_summary_screen.dart';
+import '../../features/auth/presentation/view/screens/driver_details_screen.dart';
+import '../../features/auth/presentation/view/screens/role_selection_screen.dart';
 
 export 'app_routes.dart';
 
@@ -86,6 +88,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'completeProfile',
         builder: (context, state) => const ProfileCompletionScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.chooseRole,
+        name: 'chooseRole',
+        builder: (context, state) => const RoleSelectionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.driverDetails,
+        name: 'driverDetails',
+        builder: (context, state) => const DriverDetailsScreen(),
+      ),
 
       // ── Rider Flow ─────────────────────────────────────────────────────
       GoRoute(
@@ -94,19 +106,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: AppRoutes.rideSummary,
-        name: 'rideSummary',
-        builder: (context, state) {
-          final extras = state.extra as Map<String, dynamic>? ?? {};
-          return RideSummaryScreen(
-            pickupLat: extras['pickupLat'] as double? ?? 0.0,
-            pickupLng: extras['pickupLng'] as double? ?? 0.0,
-            dropLat: extras['dropLat'] as double? ?? 0.0,
-            dropLng: extras['dropLng'] as double? ?? 0.0,
-            userId: extras['userId'] as String? ?? '',
-          );
-        },
-      )
+        path: AppRoutes.driverHome,
+        name: 'driverHome',
+        builder: (context, state) => const DriverHome(),
+      ),
     ],
 
     // ─── Error page ────────────────────────────────────────────────────────

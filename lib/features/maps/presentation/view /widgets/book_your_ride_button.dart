@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/theme.dart';
-import 'package:make_my_ride/features/ride/presentation/providers/user_id_provider.dart';
 import '../../providers/map_providers.dart';
 
 class BookYourRideButton extends ConsumerWidget {
@@ -18,7 +15,6 @@ class BookYourRideButton extends ConsumerWidget {
           // print("BUTTON CLICKED");
           try {
             /// ✅ Get userId cleanly
-            final userId = ref.read(userIdProvider);
 
             final mapState = ref.read(mapViewModelProvider);
             final pickup = mapState.currentLocation;
@@ -37,16 +33,7 @@ class BookYourRideButton extends ConsumerWidget {
 
             // print("Navigating to Ride Summary Screen...");
 
-            GoRouter.of(context).push(
-              AppRoutes.rideSummary,
-              extra: {
-                'pickupLat': pickup.latitude,
-                'pickupLng': pickup.longitude,
-                'dropLat': drop.lat,
-                'dropLng': drop.lon,
-                'userId': userId,
-              },
-            );
+            ref.read(mapViewModelProvider.notifier).setSummaryMode(true);
           } catch (e) {
             //, stack) {
             // print("ERROR IN ONPRESSED: $e");

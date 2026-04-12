@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:make_my_ride/features/maps/presentation/view /widgets/book_your_ride_button.dart';
+import 'package:make_my_ride/features/maps/presentation/view /widgets/ride_summary_widget.dart';
 import '../../providers/map_providers.dart';
 
 class SearchBottomSheet extends ConsumerWidget {
@@ -11,6 +12,7 @@ class SearchBottomSheet extends ConsumerWidget {
   final FocusNode searchFocusNode;
   final Function(String) onSearchChanged;
   final VoidCallback onCloseSearch;
+  final VoidCallback onResetBookingFlow;
   final MapController mapController;
 
   const SearchBottomSheet({
@@ -20,6 +22,7 @@ class SearchBottomSheet extends ConsumerWidget {
     required this.searchFocusNode,
     required this.onSearchChanged,
     required this.onCloseSearch,
+    required this.onResetBookingFlow,
     required this.mapController,
   });
 
@@ -30,7 +33,11 @@ class SearchBottomSheet extends ConsumerWidget {
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      top: isSearching ? 0 : MediaQuery.of(context).size.height - 250,
+      top: isSearching
+          ? 0
+          : (state.isSummaryMode
+              ? MediaQuery.of(context).size.height - 400
+              : MediaQuery.of(context).size.height - 250),
       left: 0,
       right: 0,
       bottom: 0,
@@ -53,76 +60,84 @@ class SearchBottomSheet extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isSearching)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20),
-                child: Text(
-                  "Where to?",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+            if (state.isSummaryMode)
+              Expanded(
+                child: RideSummaryWidget(
+                  onResetBookingFlow: onResetBookingFlow,
                 ),
-              ),
-
-            /// Search Input Row
-            Row(
-              children: [
-                if (isSearching)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: onCloseSearch,
-                    ),
+              )
+            else ...[
+              if (!isSearching)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    "Where to?",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                   ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
+                ),
+
+              /// Search Input Row
+              Row(
+                children: [
+                  if (isSearching)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: onCloseSearch,
+                      ),
                     ),
-                    child: TextField(
-                      controller: searchController,
-                      focusNode: searchFocusNode,
-                      onChanged: onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: "Search destination...",
-                        hintStyle:
-                            const TextStyle(color: Colors.grey, fontSize: 15),
-                        border: InputBorder.none,
-                        prefixIcon:
-                            const Icon(Icons.search, color: Colors.grey),
-                        suffixIcon: searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon:
-                                    const Icon(Icons.clear, color: Colors.grey),
-                                onPressed: () {
-                                  searchController.clear();
-                                  onSearchChanged("");
-                                  ref
-                                      .read(mapViewModelProvider.notifier)
-                                      .clearSelection();
-                                },
-                              )
-                            : null,
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        controller: searchController,
+                        focusNode: searchFocusNode,
+                        onChanged: onSearchChanged,
+                        decoration: InputDecoration(
+                          hintText: "Search destination...",
+                          hintStyle:
+                              const TextStyle(color: Colors.grey, fontSize: 15),
+                          border: InputBorder.none,
+                          prefixIcon:
+                              const Icon(Icons.search, color: Colors.grey),
+                          suffixIcon: searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear,
+                                      color: Colors.grey),
+                                  onPressed: () {
+                                    searchController.clear();
+                                    onSearchChanged("");
+                                    ref
+                                        .read(mapViewModelProvider.notifier)
+                                        .clearSelection();
+                                  },
+                                )
+                              : null,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            /// Results or Quick Actions
-            Expanded(
-              child: isSearching
-                  ? _buildSearchResults(state, ref)
-                  : Column(
-                      children: [
-                        BookYourRideButton(),
-                        const SizedBox(height: 20), // SizedBox below the row
-                      ],
-                    ),
-            ),
+              /// Results or Quick Actions
+              Expanded(
+                child: isSearching
+                    ? _buildSearchResults(state, ref)
+                    : Column(
+                        children: [
+                          BookYourRideButton(),
+                          const SizedBox(height: 20), // SizedBox below the row
+                        ],
+                      ),
+              ),
+            ],
           ],
         ),
       ),

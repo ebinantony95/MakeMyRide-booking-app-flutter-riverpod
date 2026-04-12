@@ -34,4 +34,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }) {
     return _dataSource.updateUserProfile(name: name, email: email);
   }
+
+  @override
+  Future<UserEntity> updateUserRole(String role) {
+    return _dataSource.updateUserRole(role);
+  }
+
+  @override
+  Future<UserEntity> updateDriverDetails({
+    required String vehicleType,
+    required String vehicleNumber,
+  }) {
+    return _dataSource.updateDriverDetails(
+      vehicleType: vehicleType,
+      vehicleNumber: vehicleNumber,
+    );
+  }
 }

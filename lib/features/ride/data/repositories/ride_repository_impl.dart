@@ -16,4 +16,19 @@ class RideRepositoryImpl implements RideRepository {
   Future<List<RideEntity>> getUserRides(String userId) {
     return remote.getUserRides(userId);
   }
+
+  @override
+  Future<void> updateRideStatus(String rideId, String status) {
+    return remote.updateRideStatus(rideId, status);
+  }
+
+  @override
+  Future<void> deleteRide(String rideId) {
+    return remote.deleteRide(rideId);
+  }
+
+  @override
+  Future<RideEntity?> getActiveRide(String userId) {
+    return remote.getActiveRide(userId);
+  }
 }

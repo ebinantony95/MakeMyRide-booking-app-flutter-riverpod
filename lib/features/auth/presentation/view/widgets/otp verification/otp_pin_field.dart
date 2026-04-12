@@ -23,6 +23,7 @@ class OtpPinField extends StatelessWidget {
       appContext: context,
       length: 6,
       controller: controller,
+      autoDisposeControllers: false,
       animationType: AnimationType.scale,
       keyboardType: TextInputType.number,
       autoFocus: true,

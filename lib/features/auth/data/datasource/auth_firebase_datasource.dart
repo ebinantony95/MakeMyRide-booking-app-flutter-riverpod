@@ -97,7 +97,7 @@ class AuthFirebaseDataSource {
   Future<void> signOut() => _auth.signOut();
 
   // ─── Update Profile ────────────────────────────────────────────────────────
-  
+
   Future<UserModel> updateUserProfile({
     required String name,
     required String email,
@@ -107,7 +107,7 @@ class AuthFirebaseDataSource {
 
     final docRef = _firestore.collection('users').doc(firebaseUser.uid);
     final snapshot = await docRef.get();
-    
+
     if (!snapshot.exists) throw Exception('User not found in database');
 
     UserModel currentUser = UserModel.fromFirestore(snapshot);
@@ -115,6 +115,44 @@ class AuthFirebaseDataSource {
       name: name,
       email: email,
       isProfileComplete: true,
+    );
+
+    await docRef.update(updatedUser.toFirestore());
+    return updatedUser;
+  }
+
+  Future<UserModel> updateUserRole(String role) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) throw Exception('No user signed in');
+
+    final docRef = _firestore.collection('users').doc(firebaseUser.uid);
+    final snapshot = await docRef.get();
+
+    if (!snapshot.exists) throw Exception('User not found in database');
+
+    final currentUser = UserModel.fromFirestore(snapshot);
+    final updatedUser = currentUser.copyWith(role: role.trim().toLowerCase());
+
+    await docRef.update(updatedUser.toFirestore());
+    return updatedUser;
+  }
+
+  Future<UserModel> updateDriverDetails({
+    required String vehicleType,
+    required String vehicleNumber,
+  }) async {
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) throw Exception('No user signed in');
+
+    final docRef = _firestore.collection('users').doc(firebaseUser.uid);
+    final snapshot = await docRef.get();
+
+    if (!snapshot.exists) throw Exception('User not found in database');
+
+    final currentUser = UserModel.fromFirestore(snapshot);
+    final updatedUser = currentUser.copyWith(
+      driverVehicleType: vehicleType,
+      driverVehicleNumber: vehicleNumber,
     );
 
     await docRef.update(updatedUser.toFirestore());

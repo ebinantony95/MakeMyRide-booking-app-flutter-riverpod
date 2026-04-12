@@ -35,11 +35,16 @@ class MapViewModel extends StateNotifier<MapState> {
     state = state.copyWith(selectedPlace: place);
   }
 
+  void setSummaryMode(bool value) {
+    state = state.copyWith(isSummaryMode: value);
+  }
+
   void clearSelection() {
     state = MapState(
       currentLocation: state.currentLocation,
       searchResults: state.searchResults,
       selectedPlace: null,
+      isSummaryMode: false,
     );
   }
 }

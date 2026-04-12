@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
 import 'package:make_my_ride/core/theme/app_text_styles.dart';
 import 'package:make_my_ride/core/constants/app_spacing.dart';
@@ -58,9 +60,15 @@ class _ProfileCompletionScreenState
               email: _emailController.text.trim(),
             );
 
-    if (!success && mounted) {
+    if (!mounted) return;
+
+    if (success) {
+      context.go(AppRoutes.chooseRole);
+      return;
+    }
+
+    if (!success) {
       // The view_model sets the error state, listener handles showing the snackbar.
-      // We don't need manual redirection because GoRouter handles it via refreshListenable!
     }
   }
 

@@ -7,6 +7,23 @@ class RideRemoteDatasource {
 
   RideRemoteDatasource(this.firestore);
 
+  RideEntity _mapRide(Map<String, dynamic> d) {
+    return RideEntity(
+      id: d['id'],
+      userId: d['userId'],
+      pickupLat: d['pickupLat'],
+      pickupLng: d['pickupLng'],
+      dropLat: d['dropLat'],
+      dropLng: d['dropLng'],
+      distanceKm: d['distanceKm'],
+      vehicleType:
+          VehicleType.values.firstWhere((e) => e.name == d['vehicleType']),
+      price: d['price'],
+      status: d['status'],
+      createdAt: DateTime.parse(d['createdAt']),
+    );
+  }
+
   Future<void> createRide(RideEntity ride) async {
     await firestore.collection('rides').doc(ride.id).set({
       "id": ride.id,
@@ -29,22 +46,38 @@ class RideRemoteDatasource {
         .where('userId', isEqualTo: userId)
         .get();
 
-    return snapshot.docs.map((doc) {
-      final d = doc.data();
-      return RideEntity(
-        id: d['id'],
-        userId: d['userId'],
-        pickupLat: d['pickupLat'],
-        pickupLng: d['pickupLng'],
-        dropLat: d['dropLat'],
-        dropLng: d['dropLng'],
-        distanceKm: d['distanceKm'],
-        vehicleType:
-            VehicleType.values.firstWhere((e) => e.name == d['vehicleType']),
-        price: d['price'],
-        status: d['status'],
-        createdAt: DateTime.parse(d['createdAt']),
-      );
-    }).toList();
+    final rides = snapshot.docs.map((doc) => _mapRide(doc.data())).toList();
+    rides.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return rides;
+  }
+
+  Future<void> updateRideStatus(String rideId, String status) async {
+    await firestore.collection('rides').doc(rideId).update({
+      'status': status,
+    });
+  }
+
+  Future<void> deleteRide(String rideId) async {
+    await firestore.collection('rides').doc(rideId).delete();
+  }
+
+  Future<RideEntity?> getActiveRide(String userId) async {
+    final snapshot = await firestore
+        .collection('rides')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+
+    final rides = snapshot.docs.map((doc) => _mapRide(doc.data())).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    for (final ride in rides) {
+      if (ride.status == 'pending' || ride.status == 'accepted') {
+        return ride;
+      }
+    }
+
+    return null;
   }
 }

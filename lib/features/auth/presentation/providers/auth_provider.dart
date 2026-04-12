@@ -6,6 +6,8 @@ import 'package:make_my_ride/features/auth/domain/repositories/auth_repository.d
 import 'package:make_my_ride/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/send_otp_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:make_my_ride/features/auth/domain/usecases/update_driver_details_usecase.dart';
+import 'package:make_my_ride/features/auth/domain/usecases/update_user_role_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:make_my_ride/features/auth/presentation/viewmodel/auth_viewmodel.dart';
@@ -42,16 +44,25 @@ final updateProfileUseCaseProvider = Provider<UpdateProfileUseCase>(
   (ref) => UpdateProfileUseCase(ref.watch(authRepositoryProvider)),
 );
 
+final updateUserRoleUseCaseProvider = Provider<UpdateUserRoleUseCase>(
+  (ref) => UpdateUserRoleUseCase(ref.watch(authRepositoryProvider)),
+);
+
+final updateDriverDetailsUseCaseProvider = Provider<UpdateDriverDetailsUseCase>(
+  (ref) => UpdateDriverDetailsUseCase(ref.watch(authRepositoryProvider)),
+);
+
 // ─── ViewModel Provider ───────────────────────────────────────────────────────
 
-final authViewModelProvider =
-    StateNotifierProvider<AuthViewModel, AuthState>(
+final authViewModelProvider = StateNotifierProvider<AuthViewModel, AuthState>(
   (ref) => AuthViewModel(
     sendOtpUseCase: ref.watch(sendOtpUseCaseProvider),
     verifyOtpUseCase: ref.watch(verifyOtpUseCaseProvider),
     getCurrentUserUseCase: ref.watch(getCurrentUserUseCaseProvider),
     signOutUseCase: ref.watch(signOutUseCaseProvider),
     updateProfileUseCase: ref.watch(updateProfileUseCaseProvider),
+    updateUserRoleUseCase: ref.watch(updateUserRoleUseCaseProvider),
+    updateDriverDetailsUseCase: ref.watch(updateDriverDetailsUseCaseProvider),
   ),
 );
 

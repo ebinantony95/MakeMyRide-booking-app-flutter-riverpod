@@ -6,12 +6,14 @@ class RideState {
   final RideEntity? currentRide;
   final List<RideEntity> history;
   final String? error;
+  final bool isBooking;
 
   RideState({
     this.selectedVehicle,
     this.currentRide,
     this.history = const [],
     this.error,
+    this.isBooking = false,
   });
 
   factory RideState.initial() => RideState();
@@ -19,14 +21,17 @@ class RideState {
   RideState copyWith({
     VehicleType? selectedVehicle,
     RideEntity? currentRide,
+    bool clearCurrentRide = false,
     List<RideEntity>? history,
     String? error,
+    bool? isBooking,
   }) {
     return RideState(
       selectedVehicle: selectedVehicle ?? this.selectedVehicle,
-      currentRide: currentRide ?? this.currentRide,
+      currentRide: clearCurrentRide ? null : (currentRide ?? this.currentRide),
       history: history ?? this.history,
       error: error,
+      isBooking: isBooking ?? this.isBooking,
     );
   }
 }

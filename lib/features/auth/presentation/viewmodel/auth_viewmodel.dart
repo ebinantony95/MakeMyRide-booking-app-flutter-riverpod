@@ -3,6 +3,8 @@ import 'package:make_my_ride/features/auth/domain/entities/user_entity.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/send_otp_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:make_my_ride/features/auth/domain/usecases/update_driver_details_usecase.dart';
+import 'package:make_my_ride/features/auth/domain/usecases/update_user_role_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:make_my_ride/features/auth/domain/usecases/update_profile_usecase.dart';
 
@@ -61,6 +63,8 @@ class AuthViewModel extends StateNotifier<AuthState> {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final SignOutUseCase _signOutUseCase;
   final UpdateProfileUseCase _updateProfileUseCase;
+  final UpdateUserRoleUseCase _updateUserRoleUseCase;
+  final UpdateDriverDetailsUseCase _updateDriverDetailsUseCase;
 
   AuthViewModel({
     required SendOtpUseCase sendOtpUseCase,
@@ -68,11 +72,15 @@ class AuthViewModel extends StateNotifier<AuthState> {
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required SignOutUseCase signOutUseCase,
     required UpdateProfileUseCase updateProfileUseCase,
+    required UpdateUserRoleUseCase updateUserRoleUseCase,
+    required UpdateDriverDetailsUseCase updateDriverDetailsUseCase,
   })  : _sendOtpUseCase = sendOtpUseCase,
         _verifyOtpUseCase = verifyOtpUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
         _signOutUseCase = signOutUseCase,
         _updateProfileUseCase = updateProfileUseCase,
+        _updateUserRoleUseCase = updateUserRoleUseCase,
+        _updateDriverDetailsUseCase = updateDriverDetailsUseCase,
         super(const AuthState());
 
   // ─── Check session (called from splash) ────────────────────────────────────
@@ -164,6 +172,48 @@ class AuthViewModel extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final updatedUser = await _updateProfileUseCase(name: name, email: email);
+      state = state.copyWith(
+        isLoading: false,
+        user: updatedUser,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateUserRole(String role) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final updatedUser = await _updateUserRoleUseCase(role);
+      state = state.copyWith(
+        isLoading: false,
+        user: updatedUser,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateDriverDetails({
+    required String vehicleType,
+    required String vehicleNumber,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final updatedUser = await _updateDriverDetailsUseCase(
+        vehicleType: vehicleType,
+        vehicleNumber: vehicleNumber,
+      );
       state = state.copyWith(
         isLoading: false,
         user: updatedUser,
