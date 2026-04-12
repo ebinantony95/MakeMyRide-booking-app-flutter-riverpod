@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:make_my_ride/core/theme/theme.dart';
 
-class SearchingRideWidget extends ConsumerStatefulWidget {
-  const SearchingRideWidget({
-    super.key,
-    required this.onCancel,
-  });
-
-  final VoidCallback onCancel;
+class SearchingRideWidget extends StatefulWidget {
+  const SearchingRideWidget({super.key});
 
   @override
-  ConsumerState<SearchingRideWidget> createState() =>
-      _SearchingRideWidgetState();
+  State<SearchingRideWidget> createState() => _SearchingRideWidgetState();
 }
 
-class _SearchingRideWidgetState extends ConsumerState<SearchingRideWidget>
+class _SearchingRideWidgetState extends State<SearchingRideWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -105,20 +98,13 @@ class _SearchingRideWidgetState extends ConsumerState<SearchingRideWidget>
                 ),
               ),
               const SizedBox(height: 24),
-              TextButton(
-                onPressed: widget.onCancel,
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.redAccent, width: 1),
-                  ),
-                ),
-                child: const Text(
-                  "Cancel Search",
-                  style: TextStyle(fontWeight: FontWeight.w600),
+              const Text(
+                "A new ride can only be created after this ride is completed.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

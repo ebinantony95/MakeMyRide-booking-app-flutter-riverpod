@@ -31,4 +31,9 @@ class RideRepositoryImpl implements RideRepository {
   Future<RideEntity?> getActiveRide(String userId) {
     return remote.getActiveRide(userId);
   }
+
+  @override
+  Stream<RideEntity?> watchActiveRide(String userId) {
+    return remote.watchActiveRide(userId);
+  }
 }

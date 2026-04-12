@@ -1,52 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:make_my_ride/features/pending_rides/data/models/ride_model.dart';
+import 'package:make_my_ride/features/pending_rides/domain/ride_status.dart';
 import 'package:make_my_ride/features/ride/domain/entities/ride_entitiy.dart';
-import 'package:make_my_ride/features/ride/domain/entities/vehcle_entity.dart';
 
 class RideRemoteDatasource {
   final FirebaseFirestore firestore;
 
   RideRemoteDatasource(this.firestore);
 
-  RideEntity _mapRide(Map<String, dynamic> d) {
-    return RideEntity(
-      id: d['id'],
-      userId: d['userId'],
-      pickupLat: d['pickupLat'],
-      pickupLng: d['pickupLng'],
-      dropLat: d['dropLat'],
-      dropLng: d['dropLng'],
-      distanceKm: d['distanceKm'],
-      vehicleType:
-          VehicleType.values.firstWhere((e) => e.name == d['vehicleType']),
-      price: d['price'],
-      status: d['status'],
-      createdAt: DateTime.parse(d['createdAt']),
-    );
+  Query<Map<String, dynamic>> _userRidesQuery(String userId) {
+    return firestore.collection('rides').where('userId', isEqualTo: userId);
+  }
+
+  RideEntity? _extractActiveRide(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final rides = docs.map((doc) => RideModel.fromFirestore(doc).toEntity()).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    for (final ride in rides) {
+      if (RideStatusValues.isActive(ride.status)) {
+        return ride;
+      }
+    }
+
+    return null;
   }
 
   Future<void> createRide(RideEntity ride) async {
-    await firestore.collection('rides').doc(ride.id).set({
-      "id": ride.id,
-      "userId": ride.userId,
-      "pickupLat": ride.pickupLat,
-      "pickupLng": ride.pickupLng,
-      "dropLat": ride.dropLat,
-      "dropLng": ride.dropLng,
-      "distanceKm": ride.distanceKm,
-      "vehicleType": ride.vehicleType.name,
-      "price": ride.price,
-      "status": ride.status,
-      "createdAt": ride.createdAt.toIso8601String(),
-    });
+    final rideModel = RideModel.fromEntity(ride);
+    await firestore.collection('rides').doc(ride.id).set(
+          rideModel.toFirestore(),
+        );
   }
 
   Future<List<RideEntity>> getUserRides(String userId) async {
-    final snapshot = await firestore
-        .collection('rides')
-        .where('userId', isEqualTo: userId)
-        .get();
+    final snapshot = await _userRidesQuery(userId).get();
 
-    final rides = snapshot.docs.map((doc) => _mapRide(doc.data())).toList();
+    final rides = snapshot.docs
+        .map((doc) => RideModel.fromFirestore(doc).toEntity())
+        .toList();
     rides.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return rides;
   }
@@ -62,22 +55,13 @@ class RideRemoteDatasource {
   }
 
   Future<RideEntity?> getActiveRide(String userId) async {
-    final snapshot = await firestore
-        .collection('rides')
-        .where('userId', isEqualTo: userId)
-        .get();
+    final snapshot = await _userRidesQuery(userId).get();
+    return _extractActiveRide(snapshot.docs);
+  }
 
-    if (snapshot.docs.isEmpty) return null;
-
-    final rides = snapshot.docs.map((doc) => _mapRide(doc.data())).toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-    for (final ride in rides) {
-      if (ride.status == 'pending' || ride.status == 'accepted') {
-        return ride;
-      }
-    }
-
-    return null;
+  Stream<RideEntity?> watchActiveRide(String userId) {
+    return _userRidesQuery(userId).snapshots().map(
+          (snapshot) => _extractActiveRide(snapshot.docs),
+        );
   }
 }

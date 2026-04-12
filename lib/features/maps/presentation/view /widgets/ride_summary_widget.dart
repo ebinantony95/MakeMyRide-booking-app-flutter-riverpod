@@ -1,41 +1,85 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:make_my_ride/core/theme/app_colors.dart';
-import 'package:make_my_ride/features/maps/presentation/view%20/widgets/detail_row.dart';
-import 'package:make_my_ride/features/ride/presentation/providers/ride_provider.dart';
-import 'package:make_my_ride/features/ride/presentation/view/vehcle_selector.dart';
 import 'package:make_my_ride/features/maps/presentation/providers/map_providers.dart';
+import 'package:make_my_ride/features/maps/presentation/view%20/widgets/detail_row.dart';
+import 'package:make_my_ride/features/pending_rides/domain/ride_status.dart';
+import 'package:make_my_ride/features/pending_rides/presentation/providers/pending_ride_provider.dart';
 import 'package:make_my_ride/features/ride/domain/usecases/calculate_distance.dart';
 import 'package:make_my_ride/features/ride/domain/usecases/calculate_price.dart';
+import 'package:make_my_ride/features/ride/presentation/providers/ride_provider.dart';
 import 'package:make_my_ride/features/ride/presentation/providers/user_id_provider.dart';
+import 'package:make_my_ride/features/ride/presentation/view/vehcle_selector.dart';
 import 'searching_ride_widget.dart';
 
 class RideSummaryWidget extends ConsumerWidget {
-  const RideSummaryWidget({
-    super.key,
-    required this.onResetBookingFlow,
-  });
-
-  final VoidCallback onResetBookingFlow;
+  const RideSummaryWidget({super.key});
 
   bool _isBlockingRideStatus(String? status) {
-    return status == 'pending' || status == 'accepted';
+    return RideStatusValues.isActive(status);
+  }
+
+  Future<void> _confirmAndDeleteRide(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Delete Ride?'),
+              content: const Text(
+                'This will remove the ride from Firestore and clear your active ride immediately.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (!shouldDelete || !context.mounted) {
+      return;
+    }
+
+    await ref.read(rideViewModelProvider.notifier).deleteCurrentRide();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rideState = ref.watch(rideViewModelProvider);
+    final activeRideAsync = ref.watch(activeRideProvider);
     final mapState = ref.watch(mapViewModelProvider);
     final userId = ref.watch(userIdProvider);
+    final isCheckingActiveRide =
+        activeRideAsync.isLoading && activeRideAsync.valueOrNull == null;
+    final hasActiveRideSyncError = activeRideAsync.hasError;
+    final currentRide = activeRideAsync.maybeWhen(
+      data: (ride) => ride,
+      orElse: () => rideState.currentRide,
+    );
 
-    final bool hasActiveRide = rideState.currentRide != null &&
-        _isBlockingRideStatus(rideState.currentRide!.status);
-    final currentRide = rideState.currentRide;
-    final isPendingRide = currentRide?.status == 'pending';
-    final isAcceptedRide = currentRide?.status == 'accepted';
+    final hasActiveRide =
+        currentRide != null && _isBlockingRideStatus(currentRide.status);
+    final isPendingRide = currentRide?.status == RideStatusValues.pending;
+    final isAcceptedRide = currentRide?.status == RideStatusValues.accepted;
     final pickup = mapState.currentLocation;
     final drop = mapState.selectedPlace;
     final selectedVehicle = rideState.selectedVehicle;
+    final canCreateRide =
+        !hasActiveRide && !isCheckingActiveRide && !hasActiveRideSyncError;
+    final isDeletingRide = rideState.isDeletingRide;
 
     double? estimatedPrice;
     if (!hasActiveRide &&
@@ -54,15 +98,11 @@ class RideSummaryWidget extends ConsumerWidget {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       child: rideState.isBooking
-          ? SearchingRideWidget(
-              onCancel: () async {
-                await ref.read(rideViewModelProvider.notifier).cancelBooking();
-                onResetBookingFlow();
-              },
-            )
+          ? const SearchingRideWidget()
           : SingleChildScrollView(
               padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
               child: Column(
                 key: const ValueKey('SummaryContent'),
                 mainAxisSize: MainAxisSize.min,
@@ -81,7 +121,9 @@ class RideSummaryWidget extends ConsumerWidget {
                       const Text(
                         'Ride Summary',
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -141,8 +183,8 @@ class RideSummaryWidget extends ConsumerWidget {
                                     const SizedBox(height: 4),
                                     Text(
                                       isAcceptedRide
-                                          ? 'A driver has accepted your ride. You cannot create another one yet.'
-                                          : 'Waiting for a driver to accept your ride.',
+                                          ? 'A driver has accepted your ride. Your next ride unlocks after this trip is completed.'
+                                          : 'Waiting for a driver to accept your ride. Your next ride unlocks after this trip is completed.',
                                       style: TextStyle(
                                         color: Colors.grey.shade700,
                                         fontSize: 13,
@@ -179,17 +221,42 @@ class RideSummaryWidget extends ConsumerWidget {
                                 : AppColors.warning,
                           ),
                           const SizedBox(height: 20),
+                          // Container(
+                          //   width: double.infinity,
+                          //   padding: const EdgeInsets.all(14),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.white.withValues(alpha: 0.7),
+                          //     borderRadius: BorderRadius.circular(14),
+                          //   ),
+                          //   child: Text(
+                          //     'Firestore is the source of truth for this ride. Booking stays locked until this ride becomes COMPLETED.',
+                          //     style: TextStyle(
+                          //       color: Colors.grey.shade800,
+                          //       fontWeight: FontWeight.w600,
+                          //     ),
+                          //   ),
+                          // ),
+                          const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
-                              onPressed: () async {
-                                await ref
-                                    .read(rideViewModelProvider.notifier)
-                                    .deleteCurrentRide();
-                                onResetBookingFlow();
-                              },
-                              icon: const Icon(Icons.delete_outline_rounded),
-                              label: const Text('Delete Ride'),
+                              onPressed: isDeletingRide
+                                  ? null
+                                  : () => _confirmAndDeleteRide(context, ref),
+                              icon: isDeletingRide
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.delete_outline_rounded),
+                              label: Text(
+                                isDeletingRide
+                                    ? 'Deleting Ride...'
+                                    : 'Delete Ride',
+                              ),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.error,
                                 side: const BorderSide(
@@ -204,6 +271,16 @@ class RideSummaryWidget extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          if (rideState.error != null) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              rideState.error!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     )
@@ -217,16 +294,26 @@ class RideSummaryWidget extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "Estimated Price",
+                              'Estimated Price',
                               style:
                                   TextStyle(fontSize: 16, color: Colors.grey),
                             ),
                             Text(
-                              "₹${estimatedPrice.toStringAsFixed(0)}",
+                              '₹${estimatedPrice.toStringAsFixed(0)}',
                               style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
+                        ),
+                      ),
+                    if (isCheckingActiveRide)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 16.0),
+                        child: Text(
+                          'Checking whether you already have an active ride...',
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
                         ),
                       ),
                     if (rideState.error != null)
@@ -241,27 +328,39 @@ class RideSummaryWidget extends ConsumerWidget {
                     SizedBox(
                       height: 52,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (rideState.selectedVehicle == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please select a vehicle type.'),
-                              ),
-                            );
-                            return;
-                          }
+                        onPressed: canCreateRide
+                            ? () {
+                                if (rideState.selectedVehicle == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Please select a vehicle type.',
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
 
-                          if (pickup != null && drop != null) {
-                            ref.read(rideViewModelProvider.notifier).createRide(
-                                  userId: userId,
-                                  pickupLat: pickup.latitude,
-                                  pickupLng: pickup.longitude,
-                                  dropLat: drop.lat,
-                                  dropLng: drop.lon,
-                                );
-                          }
-                        },
-                        child: const Text("Book Ride"),
+                                if (pickup != null && drop != null) {
+                                  ref
+                                      .read(rideViewModelProvider.notifier)
+                                      .createRide(
+                                        userId: userId,
+                                        pickupLat: pickup.latitude,
+                                        pickupLng: pickup.longitude,
+                                        dropLat: drop.lat,
+                                        dropLng: drop.lon,
+                                      );
+                                }
+                              }
+                            : null,
+                        child: Text(
+                          hasActiveRide
+                              ? 'Ride In Progress'
+                              : isCheckingActiveRide
+                                  ? 'Checking Active Ride...'
+                                  : 'Book Ride',
+                        ),
                       ),
                     ),
                   ],

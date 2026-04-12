@@ -1,3 +1,4 @@
+import 'package:make_my_ride/features/pending_rides/domain/ride_status.dart';
 import 'package:make_my_ride/features/ride/domain/entities/ride_entitiy.dart';
 import 'package:make_my_ride/features/ride/domain/entities/vehcle_entity.dart';
 import 'package:uuid/uuid.dart';
@@ -39,8 +40,8 @@ class CreateRide {
       distanceKm: distance,
       vehicleType: vehicle,
       price: price,
-      status: "pending",
-      createdAt: DateTime.now(),
+      status: RideStatusValues.pending,
+      createdAt: DateTime.now().toUtc(),
     );
   }
 }

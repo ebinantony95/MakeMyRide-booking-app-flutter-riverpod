@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/enitites/place_entity.dart';
 import '../../domain/usecases/get_current_location.dart';
 import '../../domain/usecases/search_place.dart';
 import '../../domain/enitites/location_enitiy.dart';
@@ -31,7 +32,7 @@ class MapViewModel extends StateNotifier<MapState> {
     state = state.copyWith(searchResults: results);
   }
 
-  void selectPlace(place) {
+  void selectPlace(PlaceEntity place) {
     state = state.copyWith(selectedPlace: place);
   }
 

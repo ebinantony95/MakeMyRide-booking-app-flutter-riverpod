@@ -1,5 +1,6 @@
 import 'package:make_my_ride/features/home/home_page.dart';
 import 'package:make_my_ride/features/driver/driver_home.dart';
+import 'package:make_my_ride/features/ride/presentation/view/ride_history.dart';
 
 import 'app_routes.dart';
 import 'auth_gate.dart';
@@ -109,6 +110,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.driverHome,
         name: 'driverHome',
         builder: (context, state) => const DriverHome(),
+      ),
+      GoRoute(
+        path: '${AppRoutes.rideHistory}/:userId',
+        name: 'rideHistory',
+        builder: (context, state) {
+          final userId = state.pathParameters['userId'] ?? '';
+          return RideHistoryScreen(userId: userId);
+        },
       ),
     ],
 

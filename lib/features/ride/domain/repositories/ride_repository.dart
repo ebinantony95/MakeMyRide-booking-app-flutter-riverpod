@@ -6,4 +6,5 @@ abstract class RideRepository {
   Future<void> updateRideStatus(String rideId, String status);
   Future<void> deleteRide(String rideId);
   Future<RideEntity?> getActiveRide(String userId);
+  Stream<RideEntity?> watchActiveRide(String userId);
 }

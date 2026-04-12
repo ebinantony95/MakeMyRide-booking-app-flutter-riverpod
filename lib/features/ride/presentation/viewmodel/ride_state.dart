@@ -7,6 +7,7 @@ class RideState {
   final List<RideEntity> history;
   final String? error;
   final bool isBooking;
+  final bool isDeletingRide;
 
   RideState({
     this.selectedVehicle,
@@ -14,6 +15,7 @@ class RideState {
     this.history = const [],
     this.error,
     this.isBooking = false,
+    this.isDeletingRide = false,
   });
 
   factory RideState.initial() => RideState();
@@ -25,6 +27,7 @@ class RideState {
     List<RideEntity>? history,
     String? error,
     bool? isBooking,
+    bool? isDeletingRide,
   }) {
     return RideState(
       selectedVehicle: selectedVehicle ?? this.selectedVehicle,
@@ -32,6 +35,7 @@ class RideState {
       history: history ?? this.history,
       error: error,
       isBooking: isBooking ?? this.isBooking,
+      isDeletingRide: isDeletingRide ?? this.isDeletingRide,
     );
   }
 }

@@ -8,5 +8,6 @@ abstract final class AppRoutes {
   static const String driverDetails = '/driver-details';
   static const String home = '/home';
   static const String driverHome = '/driver-home';
+  static const String rideHistory = '/ride-history';
   static const String addressSearch = '/address-search';
 }

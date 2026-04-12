@@ -7,6 +7,7 @@ import 'package:make_my_ride/features/ride/domain/usecases/calculate_distance.da
 import 'package:make_my_ride/features/ride/domain/usecases/calculate_price.dart';
 import 'package:make_my_ride/features/ride/domain/usecases/create_ride.dart';
 import 'package:make_my_ride/features/ride/domain/usecases/get_user_ride.dart';
+import 'package:make_my_ride/features/ride/domain/entities/ride_entitiy.dart';
 import 'package:make_my_ride/features/ride/presentation/viewmodel/ride_state.dart';
 import 'package:make_my_ride/features/ride/presentation/viewmodel/ride_viewmodel.dart';
 
@@ -29,6 +30,17 @@ final createRideProvider = Provider((ref) {
 final getUserRidesProvider = Provider((ref) {
   return GetUserRides(ref.read(rideRepositoryProvider));
 });
+
+// Centralized history loader so the history page stays on the provider path
+// instead of calling Firestore or repository code directly from the UI.
+final userRideHistoryProvider =
+    FutureProvider.family.autoDispose<List<RideEntity>, String>((
+      ref,
+      userId,
+    ) async {
+      final getUserRides = ref.watch(getUserRidesProvider);
+      return getUserRides(userId);
+    });
 
 final rideViewModelProvider =
     StateNotifierProvider<RideViewModel, RideState>((ref) {

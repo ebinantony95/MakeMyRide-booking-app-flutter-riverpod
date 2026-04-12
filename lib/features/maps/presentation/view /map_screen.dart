@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:go_router/go_router.dart';
+import 'package:make_my_ride/core/router/app_routes.dart';
 import 'package:make_my_ride/core/theme/theme.dart';
 import 'package:make_my_ride/features/auth/presentation/providers/auth_provider.dart';
-import 'package:make_my_ride/features/ride/presentation/providers/ride_provider.dart';
+import 'package:make_my_ride/features/auth/presentation/viewmodel/auth_viewmodel.dart';
 import 'package:make_my_ride/features/ride/presentation/providers/user_id_provider.dart';
 
 import '../providers/map_providers.dart';
@@ -20,6 +22,7 @@ class MapScreen extends ConsumerStatefulWidget {
 }
 
 class _MapScreenState extends ConsumerState<MapScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController controller = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final MapController mapController = MapController();
@@ -39,8 +42,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     Future.microtask(() {
       ref.read(mapViewModelProvider.notifier).loadLocation();
-      final userId = ref.read(userIdProvider);
-      ref.read(rideViewModelProvider.notifier).syncActiveRide(userId);
     });
   }
 
@@ -71,18 +72,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     });
   }
 
-  void _resetBookingFlow() {
-    controller.clear();
-    ref.read(mapViewModelProvider.notifier).clearSelection();
-    FocusScope.of(context).unfocus();
-    setState(() {
-      _isSearching = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(mapViewModelProvider);
+    final authState = ref.watch(authViewModelProvider);
 
     if (state.currentLocation == null) {
       return const Scaffold(
@@ -93,6 +86,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final current = state.currentLocation!;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildAppDrawer(context, authState),
       body: Stack(
         children: [
           /// 1. Background Map
@@ -146,17 +141,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             Positioned(
               top: 60,
               left: 16,
-              child: _buildFloatingIcon(Icons.person_outline),
+              child: GestureDetector(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: _buildFloatingIcon(Icons.person_outline),
+              ),
             ),
             Positioned(
               top: 60,
               right: 16,
-              child: GestureDetector(
-                  onTap: () {
-                    //logout
-                    ref.read(authViewModelProvider.notifier).signOut();
-                  },
-                  child: _buildFloatingIcon(Icons.notifications_none)),
+              child: _buildFloatingIcon(Icons.notifications_none),
             ),
             Positioned(
               bottom: 270,
@@ -181,10 +174,84 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             searchFocusNode: _searchFocusNode,
             onSearchChanged: _onSearchChanged,
             onCloseSearch: _closeSearch,
-            onResetBookingFlow: _resetBookingFlow,
             mapController: mapController,
           ),
         ],
+      ),
+    );
+  }
+
+  Drawer _buildAppDrawer(BuildContext context, AuthState authState) {
+    final user = authState.user;
+    final userName = user?.name?.trim();
+    final title =
+        userName != null && userName.isNotEmpty ? userName : 'My Account';
+    final subtitle = user?.phoneNumber ?? 'Signed-in user';
+
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person_outline,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Drawer actions stay here so account navigation is easy to follow.
+            ListTile(
+              leading: const Icon(Icons.history_rounded),
+              title: const Text('Ride History'),
+              subtitle: const Text('View all rides for this account'),
+              onTap: () {
+                final userId = ref.read(userIdProvider);
+                Navigator.of(context).pop();
+                context.push('${AppRoutes.rideHistory}/$userId');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout_rounded, color: AppColors.error),
+              title: const Text('Sign Out'),
+              subtitle: const Text('Exit this account'),
+              onTap: () async {
+                Navigator.of(context).pop();
+                await ref.read(authViewModelProvider.notifier).signOut();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

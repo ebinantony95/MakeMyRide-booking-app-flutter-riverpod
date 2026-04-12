@@ -12,7 +12,6 @@ class SearchBottomSheet extends ConsumerWidget {
   final FocusNode searchFocusNode;
   final Function(String) onSearchChanged;
   final VoidCallback onCloseSearch;
-  final VoidCallback onResetBookingFlow;
   final MapController mapController;
 
   const SearchBottomSheet({
@@ -22,7 +21,6 @@ class SearchBottomSheet extends ConsumerWidget {
     required this.searchFocusNode,
     required this.onSearchChanged,
     required this.onCloseSearch,
-    required this.onResetBookingFlow,
     required this.mapController,
   });
 
@@ -62,9 +60,7 @@ class SearchBottomSheet extends ConsumerWidget {
           children: [
             if (state.isSummaryMode)
               Expanded(
-                child: RideSummaryWidget(
-                  onResetBookingFlow: onResetBookingFlow,
-                ),
+                child: const RideSummaryWidget(),
               )
             else ...[
               if (!isSearching)
